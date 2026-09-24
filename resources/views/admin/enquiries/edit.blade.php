@@ -1,8 +1,10 @@
-<x-admin :breadcrumb="[
-    ['label' => 'Enquiries', 'url' => route('admin.enquiries.index')],
-    ['label' => $enquiry->reference, 'url' => route('admin.enquiries.show', $enquiry)],
-    ['label' => 'Edit']
-]">
+<x-admin
+    :breadcrumb="[
+        ['label' => 'Enquiries', 'url' => route('admin.enquiries.index')],
+        ['label' => $enquiry->reference, 'url' => route('admin.enquiries.show', $enquiry)],
+        ['label' => 'Edit']
+    ]"
+>
     <x-admin.form-page
         :action="route('admin.enquiries.update', $enquiry)"
         method="PUT"

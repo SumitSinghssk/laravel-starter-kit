@@ -3,6 +3,7 @@
 namespace App\Services\Health;
 
 use App\Models\Backup;
+use App\Models\User;
 use App\Services\Backup\BackupSchedule;
 use App\Support\MailSettings;
 use App\Support\Maintenance;
@@ -558,6 +559,16 @@ class SystemHealth
             $https => $this->check('security.https', 'HTTPS', self::OK, 'On', 'APP_URL uses https.'),
             app()->isProduction() => $this->check('security.https', 'HTTPS', self::WARNING, 'Off', 'Logins and form data travel unencrypted, and browsers mark the site “Not secure”.', 'Install an SSL certificate and set APP_URL to https://…'),
             default => $this->check('security.https', 'HTTPS', self::INFO, 'Off', 'Fine while developing. Use https on the live site.'),
+        };
+
+        $admins = User::where('status', 'active')->with('roles')->get(['id', 'two_factor_confirmed_at']);
+        $withTwoFactor = $admins->whereNotNull('two_factor_confirmed_at')->count();
+        $missingRequired = $admins->filter(fn (User $admin) => $admin->two_factor_confirmed_at === null && $admin->requiresTwoFactor())->count();
+        $checks[] = match (true) {
+            $admins->isEmpty() => $this->check('security.two_factor', 'Two-factor sign-in', self::INFO, 'No users', 'No active admin accounts.'),
+            $withTwoFactor === $admins->count() => $this->check('security.two_factor', 'Two-factor sign-in', self::OK, 'Everyone', "All {$withTwoFactor} active ".Str::plural('user', $withTwoFactor).' use it.'),
+            $missingRequired > 0 => $this->check('security.two_factor', 'Two-factor sign-in', self::INFO, "{$withTwoFactor} of {$admins->count()} users", "{$missingRequired} ".Str::plural('user', $missingRequired).' in a role that requires it will be asked to set it up at their next page view.'),
+            default => $this->check('security.two_factor', 'Two-factor sign-in', self::INFO, "{$withTwoFactor} of {$admins->count()} users", 'Accounts without it can be taken over with just a stolen password.', 'Require it for admin roles on the Roles page.'),
         };
 
         $checks[] = file_exists(public_path('.env'))

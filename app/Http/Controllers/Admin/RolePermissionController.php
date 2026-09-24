@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolePermissionController extends Controller
 {
@@ -42,6 +44,22 @@ class RolePermissionController extends Controller
         $role = Role::create(['name' => $request->name, 'guard_name' => 'web']);
 
         return back()->with('success', "Role \"{$role->name}\" created successfully.");
+    }
+
+    public function toggleTwoFactor(Request $request, Role $role)
+    {
+        Gate::authorize('admin.roles.update');
+
+        $request->validate(['required' => ['required', 'boolean']]);
+
+        $role->forceFill(['requires_two_factor' => $request->boolean('required')])->save();
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $missing = $role->users()->whereNull('two_factor_confirmed_at')->count();
+
+        return back()->with('success', $role->requires_two_factor
+            ? "Two-factor sign-in is now required for \"{$role->name}\".".($missing ? " {$missing} ".Str::plural('user', $missing).' will be asked to set it up.' : '')
+            : "Two-factor sign-in is now optional for \"{$role->name}\".");
     }
 
     public function destroyRole(Role $role)

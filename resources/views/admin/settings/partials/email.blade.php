@@ -385,7 +385,10 @@
                         <template x-if="result.detail">
                             <details class="mt-2 pl-6 text-xs">
                                 <summary class="cursor-pointer font-medium opacity-80">What the mail server said</summary>
-                                <p class="mt-1.5 rounded-lg bg-white/60 p-2 font-mono wrap-break-word dark:bg-slate-900/40" x-text="result.detail"></p>
+                                <p
+                                    class="mt-1.5 rounded-lg bg-white/60 p-2 font-mono wrap-break-word dark:bg-slate-900/40"
+                                    x-text="result.detail"
+                                ></p>
                             </details>
                         </template>
                         <p class="mt-1 pl-6 text-xs opacity-75" x-show="result.ok && ! enabled">

@@ -61,4 +61,53 @@
             )
         </x-admin.card>
     @endcan
+
+    <x-admin.card class="mt-6" title="Two-factor sign-in" icon="shield-check">
+        @if ($user->hasTwoFactor() && ! $user->is(auth()->user()))
+            @can('admin.users.two-factor')
+                <x-slot:actions>
+                    <x-admin.confirm-button
+                        :action="route('admin.users.two-factor.reset', $user)"
+                        method="DELETE"
+                        :title="'Reset two-factor sign-in for ' . $user->name . '?'"
+                        message="Do this when they lost their phone and their recovery codes. They can sign in with just their password until they set it up again, and they get an email about it."
+                        confirm="Reset"
+                        icon="refresh"
+                        size="sm"
+                        variant="danger-outline"
+                    >
+                        Reset two-factor
+                    </x-admin.confirm-button>
+                </x-slot>
+            @endcan
+        @endif
+
+        <div class="flex items-center gap-3">
+            <span
+                @class([
+                    'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                    'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' => $user->hasTwoFactor(),
+                    'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' => ! $user->hasTwoFactor(),
+                ])
+            >
+                <x-admin.icon :name="$user->hasTwoFactor() ? 'shield-check' : 'shield'" class="h-4.5 w-4.5" />
+            </span>
+            <div class="text-sm">
+                <p class="font-medium text-slate-900 dark:text-white">
+                    {{ $user->hasTwoFactor() ? 'On since ' . $user->two_factor_confirmed_at->format('d M Y') : 'Off' }}
+                </p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    @if ($user->requiresTwoFactor())
+                        Required by their role{{ $user->hasTwoFactor() ? '' : ': they will be asked to set it up at their next page view' }}.
+                    @elseif ($user->is(auth()->user()))
+                        <a href="{{ route('admin.two-factor.show') }}" class="font-medium text-blue-600 hover:underline dark:text-blue-400">
+                            Manage your own two-factor sign-in
+                        </a>
+                    @else
+                        Optional for their role. Require it on the Roles page.
+                    @endif
+                </p>
+            </div>
+        </div>
+    </x-admin.card>
 </x-admin>

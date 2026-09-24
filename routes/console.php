@@ -10,6 +10,7 @@ use App\Services\Backup\BackupRunner;
 use App\Services\Backup\BackupSchedule;
 use App\Services\Health\SystemHealth;
 use App\Services\Trash\TrashManager;
+use App\Services\TwoFactor;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
@@ -138,6 +139,31 @@ Artisan::command('admin:reset-password {email : The admin account\'s email addre
 
     return 0;
 })->purpose('Set a new password for an admin account, for when the reset email cannot be used');
+
+Artisan::command('admin:reset-two-factor {email : The admin account\'s email address}', function (TwoFactor $twoFactor) {
+    $user = User::where('email', $this->argument('email'))->first();
+
+    if (! $user) {
+        $this->error('No admin account uses that email address.');
+
+        return 1;
+    }
+
+    if (! $user->hasTwoFactor()) {
+        $this->info("{$user->name} doesn't use two-factor sign-in. Nothing to do.");
+
+        return 0;
+    }
+
+    $twoFactor->disable(request(), $user, new User(['name' => 'a server command']));
+
+    $this->info("Two-factor sign-in was turned off for {$user->name} ({$user->email}). They can sign in with just their password now.");
+    if ($user->requiresTwoFactor()) {
+        $this->comment('Their role requires it, so they will be asked to set it up again straight after signing in.');
+    }
+
+    return 0;
+})->purpose('Turn off two-factor sign-in for an admin who lost their phone and recovery codes');
 
 Schedule::call(fn () => SystemHealth::recordScheduler())->everyMinute()->name('health:heartbeat');
 Schedule::command('health:check')->hourly();

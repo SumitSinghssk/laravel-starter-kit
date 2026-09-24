@@ -27,6 +27,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     protected function casts(): array
@@ -36,7 +38,20 @@ class User extends Authenticatable
             'password' => 'hashed',
             'status' => CommonStatusEnum::class,
             'social_links' => 'array',
+            'two_factor_secret' => 'encrypted',
+            'two_factor_recovery_codes' => 'encrypted:array',
+            'two_factor_confirmed_at' => 'datetime',
         ];
+    }
+
+    public function hasTwoFactor(): bool
+    {
+        return $this->two_factor_confirmed_at !== null && filled($this->two_factor_secret);
+    }
+
+    public function requiresTwoFactor(): bool
+    {
+        return $this->roles->contains(fn ($role) => (bool) $role->requires_two_factor);
     }
 
     public function getAvatarUrlAttribute()

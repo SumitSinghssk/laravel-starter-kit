@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Services\ActivityLogger;
+use App\Services\AdminLogin;
+use App\Services\TwoFactor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,28 +18,24 @@ class AdminAuthController extends Controller
         return view('admin.auth.login');
     }
 
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request, TwoFactor $twoFactor, AdminLogin $login): RedirectResponse
     {
         $request->authenticate('web');
-        $request->session()->regenerate();
-        $request->session()->put('auth_signed_in_at', now()->timestamp);
 
         $user = Auth::user();
+        $remember = $request->boolean('remember');
 
-        ActivityLogger::login($user, $request);
+        if ($user->hasTwoFactor() && ! $twoFactor->trusts($request, $user)) {
+            Auth::guard('web')->logout();
+            $request->session()->regenerate();
+            $twoFactor->startLogin($request, $user, $remember);
 
-        notify(
-            'Admin Login',
-            'New Login',
-            "{$user->name} logged into admin panel",
-            [
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-            ],
-            route('admin.users.edit', $user)
-        );
+            return to_route('admin.two-factor.challenge');
+        }
 
-        return to_route('admin.dashboard');
+        $login->complete($request, $user, $remember, $user->hasTwoFactor() ? 'trusted device' : null);
+
+        return redirect()->intended(route('admin.dashboard'));
     }
 
     public function destroy(Request $request): RedirectResponse

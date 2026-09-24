@@ -39,7 +39,7 @@
         @vite(['resources/css/admin.css', 'resources/js/admin.js'])
     @endpush
 
-    @if (request()->is('admin/login', 'admin/forgot-password', 'admin/reset-password/*'))
+    @if (request()->is('admin/login', 'admin/forgot-password', 'admin/reset-password/*', 'admin/two-factor-challenge'))
         <div class="admin-theme min-h-screen bg-white text-slate-700 dark:bg-slate-950 dark:text-slate-300">
             {{ $slot }}
             <div id="admin-portal" class="relative z-120"></div>

@@ -264,6 +264,24 @@
                     </a>
                 @endcan
 
+                <a
+                    href="{{ route('admin.two-factor.show') }}"
+                    role="menuitem"
+                    class="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-slate-700 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                    <x-admin.icon name="shield-check" class="h-4 w-4 text-slate-400" />
+                    Two-factor sign-in
+                    <span
+                        @class([
+                            'ml-auto rounded-full px-1.5 text-[10px] leading-4 font-semibold',
+                            'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300' => $user->hasTwoFactor(),
+                            'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' => ! $user->hasTwoFactor(),
+                        ])
+                    >
+                        {{ $user->hasTwoFactor() ? 'On' : 'Off' }}
+                    </span>
+                </a>
+
                 @can('admin.settings.view')
                     <a
                         href="{{ route('admin.settings.index') }}"

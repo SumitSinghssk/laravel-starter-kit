@@ -62,6 +62,7 @@ class RolePermissionSeeder extends Seeder
             'admin.users.delete',
             'admin.users.toogle-status',
             'admin.users.sessions',
+            'admin.users.two-factor',
 
             'admin.notifications.view',
             'admin.notifications.mark-all-as-read',

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\EnsureTwoFactorEnabled;
 use App\Http\Middleware\HandleRedirects;
 use App\Http\Middleware\LogAdminActivity;
 use App\Http\Middleware\MaintenanceMode;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth' => Authenticate::class,
             'log.admin.activity' => LogAdminActivity::class,
             'guest' => RedirectIfAuthenticated::class,
+            'two-factor.required' => EnsureTwoFactorEnabled::class,
         ]);
         $middleware->encryptCookies(except: ['admin_nav']);
         $middleware->web(append: [

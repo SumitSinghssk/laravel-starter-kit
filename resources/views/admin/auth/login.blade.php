@@ -28,6 +28,16 @@
                 </div>
             @endif
 
+            @if (session('error'))
+                <div
+                    class="mb-4 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200"
+                    role="alert"
+                >
+                    <x-admin.icon name="alert-triangle" class="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>{{ session('error') }}</span>
+                </div>
+            @endif
+
             <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-7 dark:border-slate-800 dark:bg-slate-900">
                 <form
                     method="POST"

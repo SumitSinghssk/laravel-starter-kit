@@ -137,16 +137,28 @@
         </x-admin.card>
 
         @if ($canReply)
-            <x-admin.card id="reply" title="Reply by email" icon="send" class="scroll-mt-4" :text="$validEmail ? 'Goes to ' . $email . '. Their answer comes back to your inbox (' . $user->email . ').' : null">
+            <x-admin.card
+                id="reply"
+                title="Reply by email"
+                icon="send"
+                class="scroll-mt-4"
+                :text="$validEmail ? 'Goes to ' . $email . '. Their answer comes back to your inbox (' . $user->email . ').' : null"
+            >
                 @if (! $validEmail)
                     <p class="flex items-start gap-2 text-sm text-slate-500 dark:text-slate-400">
                         <x-admin.icon name="info" class="mt-0.5 h-4 w-4 shrink-0" />
                         <span>
                             There's no valid email address on this enquiry.
+
                             @if ($phone)
                                 Call or message them on {{ $phone }} instead, then add a note about it below.
                             @elseif ($canEdit)
-                                <a href="{{ route('admin.enquiries.edit', $enquiry) }}" class="font-medium text-blue-600 hover:underline dark:text-blue-400">Add an email address</a>
+                                <a
+                                    href="{{ route('admin.enquiries.edit', $enquiry) }}"
+                                    class="font-medium text-blue-600 hover:underline dark:text-blue-400"
+                                >
+                                    Add an email address
+                                </a>
                                 to reply from here.
                             @endif
                         </span>
@@ -174,8 +186,21 @@
                         x-on:submit="submitting = true"
                     >
                         @csrf
-                        <x-admin.form.input name="subject" label="Subject" :value="$replySubject" required :error="$errors->reply->first('subject')" />
-                        <x-admin.form.textarea name="body" label="Message" :value="$replyBody" rows="9" required :error="$errors->reply->first('body')" />
+                        <x-admin.form.input
+                            name="subject"
+                            label="Subject"
+                            :value="$replySubject"
+                            required
+                            :error="$errors->reply->first('subject')"
+                        />
+                        <x-admin.form.textarea
+                            name="body"
+                            label="Message"
+                            :value="$replyBody"
+                            rows="9"
+                            required
+                            :error="$errors->reply->first('body')"
+                        />
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <x-admin.form.checkbox name="quote" label="Include their original message" :checked="old('quote', true)" />
                             <x-admin.button icon="send" x-bind:disabled="submitting">
@@ -199,7 +224,10 @@
                     method="POST"
                     action="{{ route('admin.enquiries.notes.store', $enquiry) }}"
                     class="mb-6"
-                    x-data="{ submitting: false, body: {{ Js::from(old('body_note', '')) }} }"
+                    x-data="{
+                        submitting: false,
+                        body: {{ Js::from(old('body_note', '')) }},
+                    }"
                     x-on:submit="submitting = true"
                 >
                     @csrf
@@ -226,7 +254,9 @@
                 </form>
             @endif
 
-            <ol class="relative space-y-5 before:absolute before:top-2 before:bottom-2 before:left-4 before:w-px before:bg-slate-200 dark:before:bg-slate-800">
+            <ol
+                class="relative space-y-5 before:absolute before:top-2 before:bottom-2 before:left-4 before:w-px before:bg-slate-200 dark:before:bg-slate-800"
+            >
                 @foreach ($enquiry->activities as $activity)
                     @php
                         [$icon, $iconClass] = $activityStyle[$activity->type] ?? ['circle', $activityStyle[EnquiryActivity::EDITED][1]];
@@ -234,7 +264,9 @@
                     @endphp
 
                     <li class="relative flex gap-3" id="activity-{{ $activity->id }}">
-                        <span class="{{ $iconClass }} relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ring-4 ring-white dark:ring-slate-900">
+                        <span
+                            class="{{ $iconClass }} relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ring-4 ring-white dark:ring-slate-900"
+                        >
                             <x-admin.icon :name="$icon" class="h-3.5 w-3.5" />
                         </span>
 
@@ -242,9 +274,11 @@
                             <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
                                 <p class="text-sm text-slate-600 dark:text-slate-300">
                                     <span class="font-medium text-slate-900 dark:text-white">{{ $who($activity) }}</span>
+
                                     @switch($activity->type)
                                         @case(EnquiryActivity::NOTE)
                                             added a note
+
                                             @break
                                         @case(EnquiryActivity::STATUS)
                                             changed the status
@@ -252,12 +286,15 @@
                                                 from
                                                 <x-admin.status-badge :status="$meta['from']" :dot="false" class="mx-0.5 align-middle" />
                                             @endif
+
                                             to
                                             <x-admin.status-badge :status="$meta['to'] ?? null" :dot="false" class="mx-0.5 align-middle" />
+
                                             @break
                                         @case(EnquiryActivity::REPLY)
                                             emailed
                                             <span class="font-medium text-slate-900 dark:text-white">{{ $meta['to'] ?? 'the customer' }}</span>
+
                                             @break
                                         @case(EnquiryActivity::ASSIGNED)
                                             @if ($meta['to'] ?? null)
@@ -266,23 +303,29 @@
                                             @else
                                                 removed {{ $meta['from'] ?? 'the assignee' }} from it
                                             @endif
+
                                             @break
                                         @case(EnquiryActivity::FOLLOW_UP)
                                             @if ($meta['to'] ?? null)
                                                 set a follow-up for
-                                                <span class="font-medium text-slate-900 dark:text-white">{{ \Illuminate\Support\Carbon::parse($meta['to'])->format('d M Y') }}</span>
+                                                <span class="font-medium text-slate-900 dark:text-white">
+                                                    {{ \Illuminate\Support\Carbon::parse($meta['to'])->format('d M Y') }}
+                                                </span>
                                             @else
                                                 removed the follow-up
                                             @endif
+
                                             @break
                                         @case(EnquiryActivity::CREATED)
                                             added this enquiry
                                             @if ($meta['source'] ?? null)
                                                 ({{ $meta['source'] }})
                                             @endif
+
                                             @break
                                         @case(EnquiryActivity::EDITED)
                                             edited {{ Str::lower(implode(', ', $meta['fields'] ?? ['the details'])) }}
+
                                             @break
                                         @default
                                             {{ Str::headline($activity->type) }}
@@ -298,24 +341,37 @@
                             </div>
 
                             @if ($activity->type === EnquiryActivity::REPLY)
-                                <details class="group mt-2 rounded-lg border border-slate-200 bg-slate-50/60 dark:border-slate-800 dark:bg-slate-800/30">
+                                <details
+                                    class="group mt-2 rounded-lg border border-slate-200 bg-slate-50/60 dark:border-slate-800 dark:bg-slate-800/30"
+                                >
                                     <summary class="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2 text-sm">
-                                        <span class="truncate font-medium text-slate-800 dark:text-slate-100">{{ $meta['subject'] ?? 'Reply' }}</span>
+                                        <span class="truncate font-medium text-slate-800 dark:text-slate-100">
+                                            {{ $meta['subject'] ?? 'Reply' }}
+                                        </span>
                                         <x-admin.icon name="chevron-down" class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-180" />
                                     </summary>
-                                    <div class="border-t border-slate-200 px-3 py-2.5 text-sm whitespace-pre-line text-slate-700 dark:border-slate-800 dark:text-slate-200">{{ $activity->body }}</div>
+                                    <div
+                                        class="border-t border-slate-200 px-3 py-2.5 text-sm whitespace-pre-line text-slate-700 dark:border-slate-800 dark:text-slate-200"
+                                    >
+                                        {{ $activity->body }}
+                                    </div>
                                 </details>
                                 @if (($meta['delivered'] ?? true) === false)
-                                    <p class="mt-1 text-xs text-amber-600 dark:text-amber-400">Only written to the log: email wasn't set up when this was sent.</p>
+                                    <p class="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                                        Only written to the log: email wasn't set up when this was sent.
+                                    </p>
                                 @endif
                             @elseif ($activity->body)
                                 <div
                                     @class([
                                         'mt-2 rounded-lg px-3 py-2.5 text-sm whitespace-pre-line',
-                                        'border border-amber-200/70 bg-amber-50/60 text-slate-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-slate-100' => $activity->type === EnquiryActivity::NOTE,
+                                        'border border-amber-200/70 bg-amber-50/60 text-slate-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-slate-100' =>
+                                            $activity->type === EnquiryActivity::NOTE,
                                         'bg-slate-50 text-slate-700 dark:bg-slate-800/50 dark:text-slate-200' => $activity->type !== EnquiryActivity::NOTE,
                                     ])
-                                >{{ $activity->body }}</div>
+                                >
+                                    {{ $activity->body }}
+                                </div>
                             @endif
 
                             @if ($activity->type === EnquiryActivity::NOTE && ($activity->user_id === $user->id || $canDelete))
@@ -328,7 +384,9 @@
                                 >
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="cursor-pointer text-xs text-slate-400 hover:text-red-600 dark:hover:text-red-400">Delete note</button>
+                                    <button type="submit" class="cursor-pointer text-xs text-slate-400 hover:text-red-600 dark:hover:text-red-400">
+                                        Delete note
+                                    </button>
                                 </form>
                             @endif
                         </div>
@@ -387,10 +445,19 @@
                         x-on:submit="submitting = true"
                     >
                         @csrf
-                        <x-admin.form.select name="status" label="Change to" :options="$statusOptions" :value="old('status', $enquiry->status)" x-model="status" />
+                        <x-admin.form.select
+                            name="status"
+                            label="Change to"
+                            :options="$statusOptions"
+                            :value="old('status', $enquiry->status)"
+                            x-model="status"
+                        />
 
                         <div>
-                            <label for="status-note" class="mb-1.5 flex items-center justify-between text-sm font-medium text-slate-700 dark:text-slate-200">
+                            <label
+                                for="status-note"
+                                class="mb-1.5 flex items-center justify-between text-sm font-medium text-slate-700 dark:text-slate-200"
+                            >
                                 <span>
                                     Note
                                     <span x-show="noteRequired" class="text-red-500">*</span>
@@ -402,16 +469,32 @@
                                 name="note"
                                 rows="3"
                                 x-bind:required="noteRequired"
-                                x-bind:placeholder="noteRequired ? (status === 'closed' ? 'How did it end? e.g. Won, sent quote, not interested' : 'Why is it on hold, and until when?') : 'Anything worth adding'"
+                                x-bind:placeholder="
+                                    noteRequired
+                                        ? status === 'closed'
+                                            ? 'How did it end? e.g. Won, sent quote, not interested'
+                                            : 'Why is it on hold, and until when?'
+                                        : 'Anything worth adding'
+                                "
                                 class="block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-xs transition outline-none placeholder:text-slate-400 focus:border-blue-400 focus:ring-3 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                            >{{ old('note') }}</textarea>
+                            >
+{{ old('note') }}</textarea
+                            >
                             @error('note')
                                 <p class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <x-admin.button full x-bind:disabled="submitting || status === current">
-                            <span x-text="status === current ? 'Pick a new status' : (submitting ? 'Saving…' : 'Update status')">Update status</span>
+                            <span x-text="
+                                status === current
+                                    ? 'Pick a new status'
+                                    : submitting
+                                      ? 'Saving…'
+                                      : 'Update status'
+                            ">
+                                Update status
+                            </span>
                         </x-admin.button>
                     </form>
                 @endif
@@ -421,12 +504,7 @@
                 <div class="space-y-5">
                     <div>
                         @if ($canEdit)
-                            <form
-                                method="POST"
-                                action="{{ route('admin.enquiries.assign', $enquiry) }}"
-                                x-data
-                                x-on:change="$el.requestSubmit()"
-                            >
+                            <form method="POST" action="{{ route('admin.enquiries.assign', $enquiry) }}" x-data x-on:change="$el.requestSubmit()">
                                 @csrf
                                 <x-admin.form.select
                                     name="assigned_to"
@@ -461,7 +539,13 @@
                             @endif
                         </p>
                         @if ($canEdit)
-                            <form method="POST" action="{{ route('admin.enquiries.follow-up', $enquiry) }}" class="flex items-start gap-2" x-data x-on:change="$el.requestSubmit()">
+                            <form
+                                method="POST"
+                                action="{{ route('admin.enquiries.follow-up', $enquiry) }}"
+                                class="flex items-start gap-2"
+                                x-data
+                                x-on:change="$el.requestSubmit()"
+                            >
                                 @csrf
                                 <div class="min-w-0 flex-1">
                                     <x-admin.form.date-picker
@@ -485,14 +569,22 @@
                 <ul class="space-y-3 text-sm">
                     @if ($email)
                         <li class="flex items-center justify-between gap-2">
-                            <a href="mailto:{{ $email }}" class="flex min-w-0 items-center gap-2 text-slate-700 hover:text-blue-600 dark:text-slate-200 dark:hover:text-blue-400">
+                            <a
+                                href="mailto:{{ $email }}"
+                                class="flex min-w-0 items-center gap-2 text-slate-700 hover:text-blue-600 dark:text-slate-200 dark:hover:text-blue-400"
+                            >
                                 <x-admin.icon name="mail" class="h-4 w-4 shrink-0 text-slate-400" />
                                 <span class="truncate">{{ $email }}</span>
                             </a>
                             <button
                                 type="button"
                                 x-data="{ copied: false }"
-                                x-on:click="window.copyText({{ Js::from($email) }}).then((ok) => { copied = ok; setTimeout(() => (copied = false), 1500) })"
+                                x-on:click="
+                                    window.copyText({{ Js::from($email) }}).then((ok) => {
+                                        copied = ok
+                                        setTimeout(() => (copied = false), 1500)
+                                    })
+                                "
                                 class="shrink-0 cursor-pointer rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800"
                                 aria-label="Copy email"
                             >
@@ -504,7 +596,10 @@
 
                     @if ($phone)
                         <li class="flex items-center justify-between gap-2">
-                            <a href="tel:{{ preg_replace('/[^\d+]/', '', $phone) }}" class="flex min-w-0 items-center gap-2 text-slate-700 hover:text-blue-600 dark:text-slate-200 dark:hover:text-blue-400">
+                            <a
+                                href="tel:{{ preg_replace('/[^\d+]/', '', $phone) }}"
+                                class="flex min-w-0 items-center gap-2 text-slate-700 hover:text-blue-600 dark:text-slate-200 dark:hover:text-blue-400"
+                            >
                                 <x-admin.icon name="phone" class="h-4 w-4 shrink-0 text-slate-400" />
                                 <span class="truncate">{{ $phone }}</span>
                             </a>
@@ -554,6 +649,7 @@
                             <dd class="text-right text-slate-800 dark:text-slate-100">{{ $enquiry->creator->name }}</dd>
                         </div>
                     @endif
+
                     @if ($enquiry->seen_at)
                         <div class="{{ $dl }}">
                             <dt class="text-slate-500 dark:text-slate-400">First opened</dt>

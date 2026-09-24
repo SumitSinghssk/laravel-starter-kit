@@ -16,15 +16,13 @@
             ->map(fn ($part) => mb_strtoupper(mb_substr($part, 0, 1)))
             ->implode("");
 
-        $sections = [
-            ["id" => "profile", "label" => "Profile details", "icon" => "user", "text" => "Name, photo and bio"],
-            ["id" => "social", "label" => "Social profiles", "icon" => "share", "text" => "Links shown on your author page"],
-        ];
+        $sections = [["id" => "profile", "label" => "Profile details", "icon" => "user", "text" => "Name, photo and bio"], ["id" => "social", "label" => "Social profiles", "icon" => "share", "text" => "Links shown on your author page"]];
 
         if ($canUpdatePassword) {
             $sections[] = ["id" => "password", "label" => "Password", "icon" => "lock", "text" => "Keep your account secure"];
         }
 
+        $sections[] = ["id" => "two-factor", "label" => "Two-factor sign-in", "icon" => "shield-check", "text" => $me->hasTwoFactor() ? "On" : "Off: add a second step"];
         $sections[] = ["id" => "sessions", "label" => "Where you're signed in", "icon" => "monitor", "text" => "Devices and sign-outs"];
     @endphp
 
@@ -333,6 +331,41 @@
                     </x-admin.card>
                 </form>
             @endcan
+
+            <x-admin.card
+                id="two-factor"
+                title="Two-factor sign-in"
+                text="A code from your phone after your password, so a stolen password isn't enough."
+                icon="shield-check"
+                class="scroll-mt-24"
+            >
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <span
+                            @class([
+                                "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+                                "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" => $me->hasTwoFactor(),
+                                "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400" => ! $me->hasTwoFactor(),
+                            ])
+                        >
+                            <x-admin.icon :name="$me->hasTwoFactor() ? 'shield-check' : 'shield'" class="h-4.5 w-4.5" />
+                        </span>
+                        <div class="text-sm">
+                            <p class="font-medium text-slate-900 dark:text-white">{{ $me->hasTwoFactor() ? "On" : "Off" }}</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">
+                                {{ $me->hasTwoFactor() ? "Since " . $me->two_factor_confirmed_at->format("d M Y") : "Takes about a minute with a free authenticator app." }}
+                            </p>
+                        </div>
+                    </div>
+                    <x-admin.button
+                        :href="route('admin.two-factor.show')"
+                        :variant="$me->hasTwoFactor() ? 'secondary' : 'primary'"
+                        :icon="$me->hasTwoFactor() ? 'settings' : 'shield-check'"
+                    >
+                        {{ $me->hasTwoFactor() ? "Manage" : "Set up" }}
+                    </x-admin.button>
+                </div>
+            </x-admin.card>
 
             @php($otherSessions = $sessions->where("is_current", false)->count())
             <div

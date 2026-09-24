@@ -87,6 +87,13 @@
                                             You
                                         </span>
                                     @endif
+
+                                    @if ($user->two_factor_confirmed_at)
+                                        <span class="shrink-0 text-emerald-500" title="Two-factor sign-in is on">
+                                            <x-admin.icon name="shield-check" class="h-3.5 w-3.5" />
+                                            <span class="sr-only">Two-factor sign-in is on</span>
+                                        </span>
+                                    @endif
                                 </div>
                                 <span class="mt-0.5 flex items-center gap-1 text-xs text-slate-400">
                                     <x-admin.icon name="mail" class="h-3 w-3 shrink-0" />

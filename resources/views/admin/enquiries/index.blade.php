@@ -61,6 +61,7 @@
             @php
                 $active = $activeQuery == $tab['query'];
             @endphp
+
             <a
                 href="{{ route('admin.enquiries.index', [...request()->except(['status', 'follow_up', 'assigned', 'page']), ...$tab['query']]) }}"
                 @if ($active) aria-current="page" @endif
@@ -73,6 +74,7 @@
                 @isset($tab['dot'])
                     <span class="{{ $tab['dot'] }} h-1.5 w-1.5 rounded-full"></span>
                 @endisset
+
                 {{ $tab['label'] }}
                 <span
                     @class([
@@ -175,6 +177,7 @@
                             @if ($subject)
                                 <span class="block truncate text-sm font-medium text-slate-800 dark:text-slate-100">{{ $subject }}</span>
                             @endif
+
                             @if ($message)
                                 <span
                                     @class([
@@ -186,6 +189,7 @@
                                     {{ Str::limit($message, 140) }}
                                 </span>
                             @endif
+
                             <span class="mt-1 inline-flex items-center gap-1 text-[11px] text-slate-400">
                                 <x-admin.icon :name="$enquiry->is_manual ? 'user-check' : 'globe'" class="h-3 w-3" />
                                 {{ $enquiry->source_label }}

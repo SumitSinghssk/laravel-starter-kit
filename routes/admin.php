@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\Auth\AdminAuthController;
 use App\Http\Controllers\Admin\Auth\PasswordResetController;
 use App\Http\Controllers\Admin\Auth\ProfileController;
 use App\Http\Controllers\Admin\Auth\SessionController;
+use App\Http\Controllers\Admin\Auth\TwoFactorChallengeController;
+use App\Http\Controllers\Admin\Auth\TwoFactorController;
 use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\Blog\BlogCategoryController;
 use App\Http\Controllers\Admin\Blog\BlogController;
@@ -54,10 +56,24 @@ Route::middleware('log.admin.activity')->prefix('admin')->name('admin.')->group(
             Route::get('reset-password/{token}', 'edit')->name('reset');
             Route::post('reset-password', 'update')->middleware('throttle:10,1')->name('update');
         });
+
+        Route::get('two-factor-challenge', [TwoFactorChallengeController::class, 'create'])->name('two-factor.challenge');
+        Route::post('two-factor-challenge', [TwoFactorChallengeController::class, 'store'])->middleware('throttle:10,1')->name('two-factor.verify');
     });
 
-    Route::middleware('auth:web')->group(function () {
+    Route::middleware(['auth:web', 'two-factor.required'])->group(function () {
         Route::post('logout', [AdminAuthController::class, 'destroy'])->name('logout');
+
+        Route::prefix('account/two-factor')->name('two-factor.')->controller(TwoFactorController::class)->group(function () {
+            Route::get('/', 'show')->name('show');
+            Route::post('/', 'start')->middleware('throttle:10,1')->name('start');
+            Route::post('confirm', 'confirm')->middleware('throttle:10,1')->name('confirm');
+            Route::delete('setup', 'cancel')->name('cancel');
+            Route::post('recovery-codes', 'recoveryCodes')->middleware('throttle:10,1')->name('recovery-codes');
+            Route::delete('/', 'destroy')->middleware('throttle:10,1')->name('destroy');
+            Route::delete('trusted-device', 'forgetDevice')->name('forget-device');
+        });
+
         Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::put('update-password', [ProfileController::class, 'updatePassword'])->name('update-password');
@@ -133,6 +149,7 @@ Route::middleware('log.admin.activity')->prefix('admin')->name('admin.')->group(
             Route::delete('/{role}', [RolePermissionController::class, 'destroyRole'])->name('destroy');
 
             Route::post('/{role}/toggle-permission', [RolePermissionController::class, 'togglePermission'])->name('toggle-permission');
+            Route::post('/{role}/two-factor', [RolePermissionController::class, 'toggleTwoFactor'])->name('two-factor');
         });
 
         Route::prefix('permissions')->name('permissions.')->group(function () {
@@ -143,6 +160,7 @@ Route::middleware('log.admin.activity')->prefix('admin')->name('admin.')->group(
         Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
         Route::delete('/users/{user}/sessions/{key}', [UserSessionController::class, 'destroy'])->where('key', '[a-f0-9]{64}')->name('users.sessions.destroy');
         Route::delete('/users/{user}/sessions', [UserSessionController::class, 'destroyAll'])->name('users.sessions.destroy-all');
+        Route::delete('/users/{user}/two-factor', [TwoFactorController::class, 'reset'])->name('users.two-factor.reset');
         Route::resource('users', UserController::class);
 
         Route::prefix('notifications')->name('notifications.')->group(function () {
@@ -255,20 +273,15 @@ Route::middleware('log.admin.activity')->prefix('admin')->name('admin.')->group(
         Route::patch('redirects/{redirect}/toggle-status', [RedirectController::class, 'toggleStatus'])->name('redirects.toggle-status');
         Route::resource('redirects', RedirectController::class)->except(['show']);
 
-        Route::prefix('enquiries')->name('enquiries.')->controller(EnquiryController::class)->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('create', 'create')->name('create');
-            Route::post('/', 'store')->name('store');
-            Route::get('{enquiry}', 'show')->whereNumber('enquiry')->name('show');
-            Route::get('{enquiry}/edit', 'edit')->whereNumber('enquiry')->name('edit');
-            Route::put('{enquiry}', 'update')->whereNumber('enquiry')->name('update');
-            Route::delete('{enquiry}', 'destroy')->whereNumber('enquiry')->name('destroy');
-            Route::post('{enquiry}/status', 'status')->whereNumber('enquiry')->name('status');
-            Route::post('{enquiry}/notes', 'note')->whereNumber('enquiry')->name('notes.store');
-            Route::delete('{enquiry}/notes/{activity}', 'destroyNote')->whereNumber(['enquiry', 'activity'])->name('notes.destroy');
-            Route::post('{enquiry}/assign', 'assign')->whereNumber('enquiry')->name('assign');
-            Route::post('{enquiry}/follow-up', 'followUp')->whereNumber('enquiry')->name('follow-up');
-            Route::post('{enquiry}/reply', 'reply')->whereNumber('enquiry')->middleware('throttle:20,1')->name('reply');
+        Route::resource('enquiries', EnquiryController::class)->whereNumber('enquiry');
+
+        Route::prefix('enquiries/{enquiry}')->name('enquiries.')->controller(EnquiryController::class)->whereNumber('enquiry')->group(function () {
+            Route::post('status', 'status')->name('status');
+            Route::post('notes', 'note')->name('notes.store');
+            Route::delete('notes/{activity}', 'destroyNote')->whereNumber('activity')->name('notes.destroy');
+            Route::post('assign', 'assign')->name('assign');
+            Route::post('follow-up', 'followUp')->name('follow-up');
+            Route::post('reply', 'reply')->middleware('throttle:20,1')->name('reply');
         });
     });
 });

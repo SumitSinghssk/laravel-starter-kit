@@ -18,7 +18,14 @@
             </x-admin.form.input>
 
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <x-admin.form.input type="email" name="email" label="Email" :value="$value('email')" placeholder="name@company.com" autocomplete="off">
+                <x-admin.form.input
+                    type="email"
+                    name="email"
+                    label="Email"
+                    :value="$value('email')"
+                    placeholder="name@company.com"
+                    autocomplete="off"
+                >
                     <x-slot:leftIcon>
                         <x-admin.icon name="mail" class="h-4 w-4" />
                     </x-slot>

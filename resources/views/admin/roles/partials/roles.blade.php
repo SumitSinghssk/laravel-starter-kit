@@ -49,6 +49,15 @@
                                             Protected
                                         </span>
                                     @endif
+
+                                    @if ($role->requires_two_factor)
+                                        <span
+                                            class="inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-1.5 py-px text-[10px] font-medium text-emerald-700 normal-case dark:bg-emerald-500/10 dark:text-emerald-300"
+                                        >
+                                            <x-admin.icon name="shield-check" class="h-2.5 w-2.5" />
+                                            2FA required
+                                        </span>
+                                    @endif
                                 </p>
                                 <p class="mt-0.5 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
                                     <x-admin.icon name="key" class="h-3 w-3" />
@@ -118,6 +127,41 @@
                                     <x-admin.icon name="zap" class="h-3.5 w-3.5 text-amber-500" />
                                     Toggle checkboxes to grant or revoke permissions. Changes are saved instantly.
                                 </p>
+
+                                <form
+                                    method="POST"
+                                    action="{{ route('admin.roles.two-factor', $role) }}"
+                                    class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-white px-3.5 py-3 dark:border-slate-800 dark:bg-slate-900"
+                                >
+                                    @csrf
+                                    <input type="hidden" name="required" value="{{ $role->requires_two_factor ? 0 : 1 }}" />
+                                    <span class="flex items-start gap-2.5">
+                                        <x-admin.icon name="shield-check" class="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                                        <span>
+                                            <span class="block text-sm font-medium text-slate-800 dark:text-slate-100">
+                                                Require two-factor sign-in
+                                            </span>
+                                            <span class="block text-xs text-slate-500 dark:text-slate-400">
+                                                {{ $role->requires_two_factor ? 'On: people with this role must use an authenticator app.' : 'Off: people with this role can choose.' }}
+                                            </span>
+                                        </span>
+                                    </span>
+                                    <button
+                                        type="submit"
+                                        role="switch"
+                                        aria-checked="{{ $role->requires_two_factor ? 'true' : 'false' }}"
+                                        aria-label="Require two-factor sign-in for {{ $role->name }}"
+                                        @class([
+                                            'relative h-6 w-11 shrink-0 cursor-pointer rounded-full transition focus-visible:ring-3 focus-visible:ring-blue-500/30 focus-visible:outline-none',
+                                            'bg-emerald-500' => $role->requires_two_factor,
+                                            'bg-slate-300 dark:bg-slate-600' => ! $role->requires_two_factor,
+                                        ])
+                                    >
+                                        <span
+                                            @class(['absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition', 'translate-x-5' => $role->requires_two_factor])
+                                        ></span>
+                                    </button>
+                                </form>
 
                                 @if ($groupedPermissions->isEmpty())
                                     <p class="text-sm text-slate-400">No permissions found. Create some in the Permissions tab.</p>
