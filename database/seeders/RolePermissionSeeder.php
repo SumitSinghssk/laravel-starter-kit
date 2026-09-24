@@ -90,6 +90,8 @@ class RolePermissionSeeder extends Seeder
             'admin.enquiries.view',
             'admin.enquiries.delete',
             'admin.enquiries.edit',
+            'admin.enquiries.create',
+            'admin.enquiries.reply',
 
             'admin.redirects.view',
             'admin.redirects.create',

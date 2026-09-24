@@ -42,7 +42,7 @@
     @if (request()->is('admin/login', 'admin/forgot-password', 'admin/reset-password/*'))
         <div class="admin-theme min-h-screen bg-white text-slate-700 dark:bg-slate-950 dark:text-slate-300">
             {{ $slot }}
-            <div id="admin-portal" class="relative z-[120]"></div>
+            <div id="admin-portal" class="relative z-120"></div>
         </div>
     @else
         <div

@@ -2,7 +2,9 @@
 
 namespace App\Services\Transfer\Types;
 
+use App\Enums\EnquiryStatus;
 use App\Models\Enquiry;
+use App\Models\EnquiryActivity;
 use App\Services\Transfer\TransferType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -40,9 +42,14 @@ class EnquiryTransfer extends TransferType
     {
         $fixed = [
             'received' => ['When it arrived', false, ''],
-            'status' => ['new, seen, pending or closed', false, ''],
-            'source' => ['Which form', false, ''],
+            'reference' => ['Enquiry number', false, ''],
+            'status' => ['Status', false, ''],
+            'source' => ['Where it came from', false, ''],
             'page' => ['Page the form was sent from', false, ''],
+            'assigned to' => ['Team member handling it', false, ''],
+            'follow up' => ['Follow-up date', false, ''],
+            'notes' => ['Number of notes', false, ''],
+            'last note' => ['Most recent note', false, ''],
         ];
 
         foreach ($this->fields() as $field) {
@@ -54,18 +61,24 @@ class EnquiryTransfer extends TransferType
 
     public function exportQuery(): Builder
     {
-        return Enquiry::query()->latest();
+        return Enquiry::query()->with(['assignee:id,name', 'activities' => fn ($query) => $query->where('type', EnquiryActivity::NOTE)])->latest();
     }
 
     public function exportRow(Model $enquiry): array
     {
         $data = is_array($enquiry->data) ? $enquiry->data : [];
+        $notes = $enquiry->activities;
 
         return [
             $enquiry->created_at,
-            $enquiry->status,
-            $enquiry->source,
+            $enquiry->reference,
+            EnquiryStatus::labelFor($enquiry->status),
+            $enquiry->source_label,
             $enquiry->source_url,
+            $enquiry->assignee?->name,
+            $enquiry->follow_up_at?->toDateString(),
+            $notes->count(),
+            $notes->first()?->body,
             ...array_map(fn ($field) => is_scalar($data[$field] ?? null) || ($data[$field] ?? null) === null ? ($data[$field] ?? '') : json_encode($data[$field]), $this->fields()),
         ];
     }

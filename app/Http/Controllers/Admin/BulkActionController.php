@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\CommonStatusEnum;
+use App\Enums\EnquiryStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Blog;
 use App\Models\BlogCategory;
@@ -43,10 +44,7 @@ class BulkActionController extends Controller
             'seo' => [Seo::class, 'SEO record', 'SEO records', ['delete' => 'admin.seo.delete']],
             'users' => [User::class, 'user', 'users', $status('users')],
             'enquiries' => [Enquiry::class, 'enquiry', 'enquiries', [
-                'mark-new' => 'admin.enquiries.edit',
-                'mark-seen' => 'admin.enquiries.edit',
-                'mark-pending' => 'admin.enquiries.edit',
-                'mark-closed' => 'admin.enquiries.edit',
+                ...collect(EnquiryStatus::cases())->mapWithKeys(fn (EnquiryStatus $status) => ['mark-'.$status->value => 'admin.enquiries.edit'])->all(),
                 'delete' => 'admin.enquiries.delete',
             ]],
         ];
@@ -91,7 +89,7 @@ class BulkActionController extends Controller
             'activate' => "{$done} {$noun} activated.",
             'deactivate' => "{$done} {$noun} deactivated.",
             'delete' => $trash ? "{$done} {$noun} moved to the Trash." : "{$done} {$noun} deleted.",
-            default => "{$done} {$noun} marked as ".Str::after($data['action'], 'mark-').'.',
+            default => "{$done} {$noun} marked as ".EnquiryStatus::labelFor(Str::after($data['action'], 'mark-')).'.',
         };
 
         if ($skipped) {
@@ -139,6 +137,10 @@ class BulkActionController extends Controller
                 return (bool) $model->delete();
 
             default:
+                if ($model instanceof Enquiry) {
+                    return $model->changeStatus(EnquiryStatus::from(Str::after($action, 'mark-')), 'Changed with a bulk action.', $actor);
+                }
+
                 $status = Str::after($action, 'mark-');
                 $model->status = $status;
                 if ($status === 'new') {

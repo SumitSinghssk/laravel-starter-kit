@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\EnquiryStatus;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,7 +18,7 @@ class EnquiryFactory extends Factory
                 'blog', 'demo-request', 'support-form',
             ]),
             'source_url' => $this->faker->optional(0.7)->url(),
-            'status' => $this->faker->randomElement(['new', 'seen', 'pending', 'closed']),
+            'status' => $this->faker->randomElement(array_column(EnquiryStatus::cases(), 'value')),
             'seen_at' => $seenAt,
             'seen_by' => $seenAt ? User::inRandomOrder()->value('id') : null,
             'data' => [

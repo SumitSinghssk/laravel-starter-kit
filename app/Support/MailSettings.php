@@ -122,6 +122,13 @@ class MailSettings
         }
     }
 
+    public static function canDeliver(): bool
+    {
+        $mailer = config('mail.default');
+
+        return ! in_array(config("mail.mailers.{$mailer}.transport", $mailer), ['log', 'array'], true);
+    }
+
     public static function transport(array $values, ?string $password): array
     {
         $encryption = $values['encryption'] ?? 'tls';

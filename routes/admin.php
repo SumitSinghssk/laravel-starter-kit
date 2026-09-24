@@ -255,7 +255,20 @@ Route::middleware('log.admin.activity')->prefix('admin')->name('admin.')->group(
         Route::patch('redirects/{redirect}/toggle-status', [RedirectController::class, 'toggleStatus'])->name('redirects.toggle-status');
         Route::resource('redirects', RedirectController::class)->except(['show']);
 
-        Route::get('enquiries', [EnquiryController::class, 'index'])->name('enquiries.index');
-        Route::delete('enquiries/{enquiry}', [EnquiryController::class, 'destroy'])->name('enquiries.destroy');
+        Route::prefix('enquiries')->name('enquiries.')->controller(EnquiryController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{enquiry}', 'show')->whereNumber('enquiry')->name('show');
+            Route::get('{enquiry}/edit', 'edit')->whereNumber('enquiry')->name('edit');
+            Route::put('{enquiry}', 'update')->whereNumber('enquiry')->name('update');
+            Route::delete('{enquiry}', 'destroy')->whereNumber('enquiry')->name('destroy');
+            Route::post('{enquiry}/status', 'status')->whereNumber('enquiry')->name('status');
+            Route::post('{enquiry}/notes', 'note')->whereNumber('enquiry')->name('notes.store');
+            Route::delete('{enquiry}/notes/{activity}', 'destroyNote')->whereNumber(['enquiry', 'activity'])->name('notes.destroy');
+            Route::post('{enquiry}/assign', 'assign')->whereNumber('enquiry')->name('assign');
+            Route::post('{enquiry}/follow-up', 'followUp')->whereNumber('enquiry')->name('follow-up');
+            Route::post('{enquiry}/reply', 'reply')->whereNumber('enquiry')->middleware('throttle:20,1')->name('reply');
+        });
     });
 });

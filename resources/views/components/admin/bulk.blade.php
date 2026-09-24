@@ -17,12 +17,9 @@
         'activate' => ['Activate', 'check-circle'],
         'deactivate' => ['Deactivate', 'circle-dashed'],
     ];
-    $statuses = [
-        'mark-new' => 'New',
-        'mark-seen' => 'Seen',
-        'mark-pending' => 'Pending',
-        'mark-closed' => 'Closed',
-    ];
+    $statuses = collect(\App\Enums\EnquiryStatus::cases())
+        ->mapWithKeys(fn ($status) => ['mark-' . $status->value => $status->label()])
+        ->all();
 @endphp
 
 <div

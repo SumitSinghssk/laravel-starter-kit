@@ -7,6 +7,7 @@ use App\Mail\AdminPasswordResetMail;
 use App\Mail\PasswordChangedMail;
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Support\MailSettings;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Passwords\PasswordBroker;
 use Illuminate\Support\Facades\Mail;
@@ -81,9 +82,7 @@ class AdminPasswordReset
 
     public static function canDeliver(): bool
     {
-        $mailer = config('mail.default');
-
-        return ! in_array(config("mail.mailers.{$mailer}.transport", $mailer), ['log', 'array'], true);
+        return MailSettings::canDeliver();
     }
 
     private function log(User $user, string $action, string $description, ?string $ip, ?string $userAgent): void

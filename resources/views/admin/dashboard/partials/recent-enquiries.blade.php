@@ -12,16 +12,13 @@
         <ul class="divide-y divide-slate-100 dark:divide-slate-800">
             @forelse ($recentEnquiries as $enquiry)
                 @php
-                    $name = $enquiry->data['name'] ?? 'Unknown';
-                    $initials = collect(preg_split('/\s+/', trim($name)))
-                        ->map(fn ($p) => mb_strtoupper(mb_substr($p, 0, 1)))
-                        ->take(2)
-                        ->implode('');
+                    $name = $enquiry->display_name;
+                    $initials = $enquiry->initials ?? mb_strtoupper(mb_substr($name, 0, 1));
                 @endphp
 
                 <li>
                     <a
-                        href="{{ route('admin.enquiries.index', ['search' => $enquiry->data['email'] ?? $name]) }}"
+                        href="{{ route('admin.enquiries.show', $enquiry) }}"
                         class="flex items-center gap-3 px-4 py-3 transition hover:bg-slate-50 sm:px-5 dark:hover:bg-slate-800/40"
                     >
                         <span
@@ -42,7 +39,7 @@
                             </span>
                             <span class="mt-0.5 flex items-center gap-1 truncate text-xs text-slate-500 dark:text-slate-400">
                                 <x-admin.icon name="mail" class="h-3 w-3" />
-                                <span class="truncate">{{ $enquiry->data['email'] ?? '—' }}</span>
+                                <span class="truncate">{{ $enquiry->field('email') ?? ($enquiry->field('phone') ?? '—') }}</span>
                                 @if (! empty($enquiry->data['service']))
                                     <span class="text-slate-300 dark:text-slate-600">·</span>
                                     <span class="truncate">{{ $enquiry->data['service'] }}</span>

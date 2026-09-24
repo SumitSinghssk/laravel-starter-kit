@@ -11,10 +11,9 @@
     $known = [
         'active' => ['success', 'Active'],
         'inactive' => ['neutral', 'Inactive'],
-        'new' => ['info', 'New'],
-        'seen' => ['neutral', 'Seen'],
-        'pending' => ['warning', 'Pending'],
-        'closed' => ['success', 'Closed'],
+        ...collect(\App\Enums\EnquiryStatus::cases())
+            ->mapWithKeys(fn ($case) => [$case->value => [$case->tone(), $case->label()]])
+            ->all(),
     ];
 
     [$knownTone, $knownLabel] = $known[$statusValue] ?? ['neutral', $statusValue ? ucfirst((string) $statusValue) : ''];

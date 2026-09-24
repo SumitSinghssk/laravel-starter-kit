@@ -8,13 +8,6 @@
         'amber' => 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-300',
     ];
 
-    $enquiryStatus = [
-        'new' => 'bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300',
-        'seen' => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300',
-        'pending' => 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300',
-        'closed' => 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
-    ];
-
     if ($chart) {
         $step = max(1, (int) ceil($chart['max'] / 4));
         $niceStep = collect([1, 2, 5, 10, 20, 25, 50, 100, 250, 500, 1000])->first(fn ($s) => $s >= $step) ?? $step;

@@ -2,6 +2,8 @@
 
 namespace App\View\Components;
 
+use App\Enums\EnquiryStatus;
+use App\Models\Enquiry;
 use App\Services\Health\SystemHealth;
 use Closure;
 use Illuminate\Contracts\View\View;
@@ -29,7 +31,11 @@ class Admin extends Component
                 'collapsible' => false,
                 'items' => [
                     $item('Dashboard', 'admin.dashboard', 'dashboard', 'admin.dashboard', 'dashboard.view'),
-                    $item('Enquiries', 'admin.enquiries.index', 'inbox', 'admin.enquiries.*', 'admin.enquiries.view'),
+                    [
+                        ...$item('Enquiries', 'admin.enquiries.index', 'inbox', 'admin.enquiries.*', 'admin.enquiries.view'),
+                        'badge' => auth()->user()?->can('admin.enquiries.view') ? Enquiry::where('status', EnquiryStatus::NEW->value)->count() : 0,
+                        'badgeLabel' => 'new enquiries',
+                    ],
                 ],
             ],
             [

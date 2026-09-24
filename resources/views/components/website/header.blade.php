@@ -146,7 +146,7 @@
                                                                 {!! $target($card) !!}
                                                                 class="group rounded-site-card border-site-border bg-site-page block overflow-hidden border transition hover:-translate-y-0.5 hover:shadow-md"
                                                             >
-                                                                <span class="bg-site-surface-alt block aspect-[4/5] overflow-hidden">
+                                                                <span class="bg-site-surface-alt block aspect-4/5 overflow-hidden">
                                                                     @if ($card['image'])
                                                                         <img
                                                                             src="{{ $card['image'] }}"

@@ -311,7 +311,7 @@ test('bulk enquiry status changes mark them seen', function () {
     $enquiries = Enquiry::factory()->count(2)->create(['status' => 'new', 'seen_at' => null]);
 
     $this->actingAs($admin)->post(route('admin.bulk', 'enquiries'), ['action' => 'mark-closed', 'ids' => $enquiries->pluck('id')->all()])
-        ->assertSessionHas('success', '2 enquiries marked as closed.');
+        ->assertSessionHas('success', '2 enquiries marked as Closed.');
 
     $enquiries->each(fn ($enquiry) => expect($enquiry->fresh())->status->toBe('closed')->seen_by->toBe($admin->id));
 });
