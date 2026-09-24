@@ -1,8 +1,11 @@
 <?php
 
+use App\Enums\CommonStatusEnum;
 use App\Http\Controllers\Admin\NotFoundController;
 use App\Models\Backup;
 use App\Models\GalleryUpload;
+use App\Models\User;
+use App\Services\AdminPasswordReset;
 use App\Services\Backup\BackupRunner;
 use App\Services\Backup\BackupSchedule;
 use App\Services\Health\SystemHealth;
@@ -11,7 +14,10 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schedule;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Number;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -90,6 +96,48 @@ Artisan::command('health:check', function () {
 
     return $summary['errors'] > 0 ? 1 : 0;
 })->purpose('Check the server, queue, scheduler, email and storage, like the admin System health page');
+
+Artisan::command('admin:reset-password {email : The admin account\'s email address} {--generate : Create a random password instead of asking for one}', function (AdminPasswordReset $resets) {
+    $user = User::where('email', $this->argument('email'))->first();
+
+    if (! $user) {
+        $this->error('No admin account uses that email address.');
+
+        return 1;
+    }
+
+    if ($this->option('generate') || ! $this->input->isInteractive()) {
+        $password = Str::password(16, symbols: false);
+    } else {
+        $password = $this->secret('New password (at least 8 characters)');
+
+        if ($password !== $this->secret('Type it again')) {
+            $this->error('The passwords did not match. Nothing was changed.');
+
+            return 1;
+        }
+    }
+
+    $validator = Validator::make(['password' => $password], ['password' => ['required', 'string', Password::defaults()]]);
+    if ($validator->fails()) {
+        $this->error($validator->errors()->first('password'));
+
+        return 1;
+    }
+
+    $ended = $resets->changePassword($user, $password, null, null, 'server command');
+
+    $this->info("Password changed for {$user->name} ({$user->email}). Signed out of {$ended} ".Str::plural('session', $ended).'.');
+    if ($this->option('generate') || ! $this->input->isInteractive()) {
+        $this->line("New password: <options=bold>{$password}</>");
+        $this->comment('Share it privately and ask them to change it after signing in.');
+    }
+    if ($user->status?->value !== CommonStatusEnum::ACTIVE->value || $user->trashed()) {
+        $this->warn('Note: this account is inactive or in the trash, so it still cannot sign in.');
+    }
+
+    return 0;
+})->purpose('Set a new password for an admin account, for when the reset email cannot be used');
 
 Schedule::call(fn () => SystemHealth::recordScheduler())->everyMinute()->name('health:heartbeat');
 Schedule::command('health:check')->hourly();

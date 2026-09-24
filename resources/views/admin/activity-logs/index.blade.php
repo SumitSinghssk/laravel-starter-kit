@@ -10,6 +10,8 @@
         'login' => ['Login', 'success', 'log-in'],
         'logout' => ['Logout', 'neutral', 'log-out'],
         'failed_login' => ['Failed login', 'danger', 'x-circle'],
+        'password_reset_requested' => ['Reset link sent', 'info', 'key'],
+        'password_reset' => ['Password reset', 'warning', 'key'],
         'viewed' => ['Viewed', 'info', 'eye'],
         'created' => ['Created', 'success', 'plus'],
         'updated' => ['Updated', 'warning', 'pencil'],

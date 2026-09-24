@@ -18,6 +18,16 @@
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Enter your email and password to continue.</p>
             </div>
 
+            @if (session('success'))
+                <div
+                    class="mb-4 flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200"
+                    role="status"
+                >
+                    <x-admin.icon name="check-circle" class="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>{{ session('success') }}</span>
+                </div>
+            @endif
+
             <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-7 dark:border-slate-800 dark:bg-slate-900">
                 <form
                     method="POST"
@@ -47,7 +57,15 @@
                         required
                     />
 
-                    <x-admin.form.checkbox name="remember" label="Keep me signed in" :checked="old('remember')" />
+                    <div class="flex items-center justify-between gap-3">
+                        <x-admin.form.checkbox name="remember" label="Keep me signed in" :checked="old('remember')" />
+                        <a
+                            href="{{ route('admin.password.request') }}"
+                            class="shrink-0 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                        >
+                            Forgot password?
+                        </a>
+                    </div>
 
                     <x-admin.button full size="lg">
                         <span x-text="submitting ? 'Signing in…' : 'Sign in'">Sign in</span>

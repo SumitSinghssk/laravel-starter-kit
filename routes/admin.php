@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AppearanceController;
 use App\Http\Controllers\Admin\Auth\AdminAuthController;
+use App\Http\Controllers\Admin\Auth\PasswordResetController;
 use App\Http\Controllers\Admin\Auth\ProfileController;
 use App\Http\Controllers\Admin\Auth\SessionController;
 use App\Http\Controllers\Admin\BackupController;
@@ -46,6 +47,13 @@ Route::middleware('log.admin.activity')->prefix('admin')->name('admin.')->group(
     Route::middleware('guest:web')->group(function () {
         Route::get('login', [AdminAuthController::class, 'index'])->name('login');
         Route::post('login', [AdminAuthController::class, 'store'])->name('login.store');
+
+        Route::controller(PasswordResetController::class)->name('password.')->group(function () {
+            Route::get('forgot-password', 'create')->name('request');
+            Route::post('forgot-password', 'store')->middleware('throttle:5,1')->name('email');
+            Route::get('reset-password/{token}', 'edit')->name('reset');
+            Route::post('reset-password', 'update')->middleware('throttle:10,1')->name('update');
+        });
     });
 
     Route::middleware('auth:web')->group(function () {
