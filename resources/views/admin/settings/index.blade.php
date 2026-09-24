@@ -121,7 +121,7 @@
     >
         <nav
             aria-label="Settings sections"
-            class="-mx-4 border-b border-slate-200 px-4 sm:mx-0 sm:px-0 lg:sticky lg:top-20 lg:border-b-0 dark:border-slate-800"
+            class="-mx-4 border-b border-slate-200 px-4 sm:mx-0 sm:px-0 lg:sticky lg:top-0 lg:border-b-0 dark:border-slate-800"
         >
             <ul class="scrollbar-hide -mb-px flex gap-1 overflow-x-auto lg:mb-0 lg:flex-col lg:overflow-visible">
                 @foreach ($tabs as $tab)
