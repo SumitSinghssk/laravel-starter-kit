@@ -2,6 +2,7 @@
 
 namespace App\View\Components;
 
+use App\Services\Health\SystemHealth;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
@@ -88,6 +89,12 @@ class Admin extends Component
                     $item('Activity Logs', 'admin.activity-logs.index', 'activity', 'admin.activity-logs.*', 'admin.activity-logs.view'),
                     $item('Backups', 'admin.backups.index', 'save', 'admin.backups.*', 'admin.backups.view'),
                     $item('Trash', 'admin.trash.index', 'trash', 'admin.trash.*', 'admin.trash.view'),
+                    [
+                        ...$item('System health', 'admin.system-health.index', 'heart-pulse', 'admin.system-health.*', 'admin.system-health.view'),
+                        'badge' => SystemHealth::summary()['errors'] ?? 0,
+                        'badgeTone' => 'danger',
+                        'badgeLabel' => 'problems found',
+                    ],
                 ],
             ],
         ];

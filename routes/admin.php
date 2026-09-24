@@ -34,6 +34,7 @@ use App\Http\Controllers\Admin\Setting\RobotsController;
 use App\Http\Controllers\Admin\Setting\ScriptSettingController;
 use App\Http\Controllers\Admin\Setting\SettingController;
 use App\Http\Controllers\Admin\Setting\SitemapController;
+use App\Http\Controllers\Admin\SystemHealthController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\TransferController;
 use App\Http\Controllers\Admin\TrashController;
@@ -195,6 +196,15 @@ Route::middleware('log.admin.activity')->prefix('admin')->name('admin.')->group(
             Route::post('{backup}/step', 'step')->name('step');
             Route::get('{backup}/download/{file}', 'download')->where('file', '[A-Za-z0-9._-]+')->name('download');
             Route::delete('{backup}', 'destroy')->name('destroy');
+        });
+
+        Route::prefix('system-health')->name('system-health.')->controller(SystemHealthController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('sizes', 'sizes')->name('sizes');
+            Route::post('mail-check', 'mailCheck')->middleware('throttle:6,1')->name('mail-check');
+            Route::post('storage-link', 'storageLink')->name('storage-link');
+            Route::post('failed-jobs/retry', 'retryFailed')->name('failed-jobs.retry');
+            Route::delete('failed-jobs', 'deleteFailed')->name('failed-jobs.delete');
         });
 
         Route::prefix('trash')->name('trash.')->controller(TrashController::class)->group(function () {

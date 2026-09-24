@@ -5,6 +5,7 @@ use App\Models\Backup;
 use App\Models\GalleryUpload;
 use App\Services\Backup\BackupRunner;
 use App\Services\Backup\BackupSchedule;
+use App\Services\Health\SystemHealth;
 use App\Services\Trash\TrashManager;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -64,3 +65,31 @@ Artisan::command('backup:run {--scheduled : Only run when the admin schedule say
 Schedule::command('backup:run --scheduled')->everyMinute()->withoutOverlapping(720);
 
 Schedule::call(fn () => NotFoundController::prune())->daily()->name('not-found:prune');
+
+Artisan::command('health:check', function () {
+    $result = SystemHealth::forRequest()->run();
+
+    foreach ($result['groups'] as $group) {
+        $this->line('');
+        $this->line("<options=bold>{$group['label']}</>");
+
+        foreach ($group['checks'] as $check) {
+            $tag = match ($check['status']) {
+                SystemHealth::ERROR => '<fg=red>✗</>',
+                SystemHealth::WARNING => '<fg=yellow>!</>',
+                SystemHealth::OK => '<fg=green>✓</>',
+                default => '<fg=gray>·</>',
+            };
+            $this->line("  {$tag} {$check['label']}: ".trim(($check['value'] ? $check['value'].'. ' : '').$check['message']));
+        }
+    }
+
+    $summary = $result['summary'];
+    $this->line('');
+    $this->line("{$summary['errors']} problem(s), {$summary['warnings']} warning(s), {$summary['passed']} of {$summary['total']} checks passed.");
+
+    return $summary['errors'] > 0 ? 1 : 0;
+})->purpose('Check the server, queue, scheduler, email and storage, like the admin System health page');
+
+Schedule::call(fn () => SystemHealth::recordScheduler())->everyMinute()->name('health:heartbeat');
+Schedule::command('health:check')->hourly();

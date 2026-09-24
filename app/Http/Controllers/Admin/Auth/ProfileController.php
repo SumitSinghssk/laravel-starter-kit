@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\ActiveSessions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
@@ -17,7 +18,7 @@ class ProfileController extends Controller
 
         return view('admin.auth.profile', [
             'user' => $request->user(),
-            'sessions' => app(\App\Services\ActiveSessions::class)->forUser($request->user(), $request->session()->getId()),
+            'sessions' => app(ActiveSessions::class)->forUser($request->user(), $request->session()->getId()),
         ]);
     }
 

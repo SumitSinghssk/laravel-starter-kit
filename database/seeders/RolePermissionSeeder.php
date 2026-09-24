@@ -126,6 +126,9 @@ class RolePermissionSeeder extends Seeder
             'admin.backups.download',
             'admin.backups.delete',
             'admin.backups.settings',
+
+            'admin.system-health.view',
+            'admin.system-health.manage',
         ];
 
         foreach ($permissions as $permission) {

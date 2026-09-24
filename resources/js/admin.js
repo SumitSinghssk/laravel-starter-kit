@@ -9,6 +9,27 @@ import registerMenus from './admin/menus';
 
 window.Alpine = Alpine;
 
+window.copyText = async (text) => {
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch {}
+    }
+
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.select();
+    const copied = document.execCommand('copy');
+    area.remove();
+
+    return copied;
+};
+
 Alpine.data('imageUpload', (config) => ({
     preview: config.current || '',
     hasFile: false,

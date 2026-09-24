@@ -182,7 +182,12 @@
                                     <span class="lg:collapsed:hidden truncate">{{ $link['title'] }}</span>
                                     @if (! empty($link['badge']))
                                         <span
-                                            class="tabular lg:collapsed:absolute lg:collapsed:-top-0.5 lg:collapsed:-right-0.5 lg:collapsed:ml-0 lg:collapsed:rounded-full lg:collapsed:px-1 lg:collapsed:leading-4 ml-auto rounded-md bg-blue-600 px-1.5 text-[10px] leading-4.5 font-semibold text-white dark:bg-blue-500"
+                                            @if (! empty($link['badgeLabel'])) title="{{ $link['badge'] }} {{ $link['badgeLabel'] }}" @endif
+                                            @class([
+                                                'tabular lg:collapsed:absolute lg:collapsed:-top-0.5 lg:collapsed:-right-0.5 lg:collapsed:ml-0 lg:collapsed:rounded-full lg:collapsed:px-1 lg:collapsed:leading-4 ml-auto rounded-md px-1.5 text-[10px] leading-4.5 font-semibold text-white',
+                                                'bg-red-600 dark:bg-red-500' => ($link['badgeTone'] ?? null) === 'danger',
+                                                'bg-blue-600 dark:bg-blue-500' => ($link['badgeTone'] ?? null) !== 'danger',
+                                            ])
                                         >
                                             {{ $link['badge'] > 99 ? '99+' : $link['badge'] }}
                                         </span>

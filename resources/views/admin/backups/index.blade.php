@@ -11,7 +11,7 @@
 
     $schedulerOk = $schedulerSeen && $schedulerSeen->gt(now()->subMinutes(5));
     $isWindows = PHP_OS_FAMILY === 'Windows';
-    $php = PHP_BINARY;
+    $php = \App\Services\Health\SystemHealth::phpBinary();
     $artisan = base_path('artisan');
     $setupCommand = $isWindows
         ? 'schtasks /Create /F /SC MINUTE /MO 1 /TN "Laravel scheduler" /TR "\"' . $php . '\" \"' . $artisan . '\" schedule:run"'
