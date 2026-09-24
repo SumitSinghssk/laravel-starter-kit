@@ -1,0 +1,27 @@
+{
+    "$schema": "https://www.schemastore.org/package.json",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "node setup.cjs && vite build",
+        "dev": "vite",
+        "format": "prettier --write \"resources/**/*.{js,jsx,ts,tsx,css,vue,blade.php}\"",
+        "format:check": "prettier --check \"resources/**/*.{js,jsx,ts,tsx,css,vue,blade.php}\""
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.0.0",
+        "axios": "^1.11.0",
+        "alpinejs": "^3.4.2",
+        "concurrently": "^9.0.1",
+        "laravel-vite-plugin": "^2.0.0",
+        "swiper": "^12.0.3",
+        "tailwindcss": "^4.0.0",
+        "vite": "^7.0.7",
+        "prettier": "^3.4.2",
+        "prettier-plugin-blade": "^2.1.21",
+        "prettier-plugin-organize-imports": "^4.1.0",
+        "prettier-plugin-tailwindcss": "^0.6.11",
+        "tinymce": "^7.3.0",
+        "fs-extra": "^11.2.0"
+    }
+}

@@ -1,0 +1,59 @@
+@import 'tailwindcss' source(none);
+@import 'swiper/css/bundle';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@source '../views/website';
+@source '../views/layouts/website.blade.php';
+@source '../views/layouts/app.blade.php';
+@source '../views/layouts/partials/website';
+@source '../views/components';
+@source not '../views/components/admin';
+@source '../views/maintenance.blade.php';
+@source '../views/admin/appearance/preview.blade.php';
+@source '../views/vendor/pagination';
+@source '../js/website.js';
+@source inline('p-4');
+
+@theme inline {
+    --color-site-page: var(--slot-page);
+    --color-site-surface: var(--slot-surface);
+    --color-site-surface-alt: var(--slot-surface-alt);
+    --color-site-text: var(--slot-text);
+    --color-site-heading: var(--slot-heading);
+    --color-site-muted: var(--slot-muted);
+    --color-site-border: var(--slot-border);
+    --color-site-link: var(--slot-link);
+    --color-site-link-hover: var(--slot-link-hover);
+    --color-site-header: var(--slot-header);
+    --color-site-header-text: var(--slot-header-text);
+    --color-site-header-active: var(--slot-header-active);
+    --color-site-button: var(--slot-button);
+    --color-site-button-text: var(--slot-button-text);
+    --color-site-button-hover: var(--slot-button-hover);
+    --color-site-button-secondary: var(--slot-button-secondary);
+    --color-site-button-secondary-text: var(--slot-button-secondary-text);
+    --color-site-button-secondary-hover: var(--slot-button-secondary-hover);
+    --color-site-accent: var(--slot-accent);
+    --color-site-accent-text: var(--slot-accent-text);
+    --color-site-input: var(--slot-input);
+    --color-site-input-text: var(--slot-input-text);
+    --color-site-input-border: var(--slot-input-border);
+    --color-site-focus: var(--slot-focus);
+    --color-site-footer: var(--slot-footer);
+    --color-site-footer-text: var(--slot-footer-text);
+    --color-site-footer-heading: var(--slot-footer-heading);
+    --color-site-footer-link: var(--slot-footer-link);
+    --color-site-success: var(--slot-success);
+    --color-site-warning: var(--slot-warning);
+    --color-site-danger: var(--slot-danger);
+    --color-site-info: var(--slot-info);
+    --font-heading: var(--slot-font-heading);
+    --font-body: var(--slot-font-body);
+    --radius-site: var(--slot-radius);
+    --radius-site-card: min(var(--slot-radius), 1.25rem);
+}
+
+[x-cloak] {
+    display: none !important;
+}
