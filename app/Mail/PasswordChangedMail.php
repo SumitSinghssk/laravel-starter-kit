@@ -2,37 +2,36 @@
 
 namespace App\Mail;
 
-use App\Helpers\Settings;
 use App\Models\User;
 use App\Support\LocalTime;
 use App\Support\UserAgent;
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 
-class PasswordChangedMail extends Mailable
+class PasswordChangedMail extends TemplateMail
 {
     public function __construct(public User $user, public ?string $ip = null, public ?string $userAgent = null) {}
 
-    public function envelope(): Envelope
+    protected function templateKey(): string
     {
-        return new Envelope(subject: 'Your '.Settings::appName().' password was changed');
+        return 'password_changed';
     }
 
-    public function content(): Content
+    protected function variables(): array
     {
         $agent = UserAgent::describe($this->userAgent);
 
-        return new Content(
-            view: 'emails.password-changed',
-            with: [
-                'appName' => Settings::appName(),
-                'name' => $this->user->name,
-                'email' => $this->user->email,
-                'when' => LocalTime::dateTime(now(), true),
-                'device' => $this->userAgent ? $agent['browser'].' on '.$agent['os'] : 'Server command',
-                'ip' => $this->ip ?: 'Unknown',
-            ],
-        );
+        return [
+            'name' => $this->user->name,
+            'email' => $this->user->email,
+            'when' => LocalTime::dateTime(now(), true),
+            'device' => $this->userAgent ? $agent['browser'].' on '.$agent['os'] : 'Server command',
+            'ip' => $this->ip ?: 'Unknown',
+        ];
+    }
+
+    protected function details(): array
+    {
+        $variables = $this->variables();
+
+        return ['When' => $variables['when'], 'Device' => $variables['device'], 'IP address' => $variables['ip']];
     }
 }

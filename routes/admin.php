@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\Setting\BasicSettingController;
 use App\Http\Controllers\Admin\Setting\ClearCacheController;
 use App\Http\Controllers\Admin\Setting\DateTimeSettingController;
 use App\Http\Controllers\Admin\Setting\DbDownloadController;
+use App\Http\Controllers\Admin\Setting\EmailTemplateController;
 use App\Http\Controllers\Admin\Setting\LogController;
 use App\Http\Controllers\Admin\Setting\MailSettingController;
 use App\Http\Controllers\Admin\Setting\MaintenanceController;
@@ -133,9 +134,17 @@ Route::middleware('log.admin.activity')->prefix('admin')->name('admin.')->group(
             Route::post('robots', RobotsController::class)->name('robots.update');
 
             Route::post('email', [MailSettingController::class, 'update'])->name('email.update');
-            Route::post('email/test', [MailSettingController::class, 'test'])->middleware('throttle:6,1')->name('email.test');
+            Route::post('email/test', [MailSettingController::class, 'test'])->middleware('throttle:email-test')->name('email.test');
 
             Route::put('date-time', DateTimeSettingController::class)->name('date-time.update');
+
+            Route::prefix('email-templates')->name('email-templates.')->controller(EmailTemplateController::class)->group(function () {
+                Route::put('design', 'design')->name('design');
+                Route::put('{template}', 'update')->name('update');
+                Route::delete('{template}', 'destroy')->name('destroy');
+                Route::post('{template}/preview', 'preview')->middleware('throttle:email-preview')->name('preview');
+                Route::post('{template}/test', 'test')->middleware('throttle:email-test')->name('test');
+            });
 
             Route::prefix('security')->name('security.')->controller(SecuritySettingController::class)->group(function () {
                 Route::put('/', 'update')->name('update');

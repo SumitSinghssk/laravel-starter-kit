@@ -66,6 +66,21 @@
     if (
         auth()
             ->user()
+            ->can('admin.settings.email-templates.view')
+    ) {
+        $editedEmails = collect(array_keys(\App\Support\EmailTemplates::definitions()))
+            ->filter(fn ($key) => \App\Support\EmailTemplates::isCustomised($key))
+            ->count();
+        $tabs[] = [
+            'id' => 'email-templates',
+            'label' => 'Email templates',
+            'hint' => $editedEmails ? $editedEmails . ' of ' . count(\App\Support\EmailTemplates::definitions()) . ' edited' : 'Words in the emails the site sends',
+            'icon' => 'mail-open',
+        ];
+    }
+    if (
+        auth()
+            ->user()
             ->can('admin.settings.scripts.view')
     ) {
         $tabs[] = ['id' => 'scripts', 'label' => 'Scripts & CSS', 'hint' => 'Tracking tags and custom styles', 'icon' => 'code'];
@@ -244,6 +259,12 @@
             @can('admin.settings.email.view')
                 <div x-show="activeTab === 'email'" {{ $cloak('email') }}>
                     @include('admin.settings.partials.email')
+                </div>
+            @endcan
+
+            @can('admin.settings.email-templates.view')
+                <div x-show="activeTab === 'email-templates'" {{ $cloak('email-templates') }}>
+                    @include('admin.settings.partials.email-templates')
                 </div>
             @endcan
 

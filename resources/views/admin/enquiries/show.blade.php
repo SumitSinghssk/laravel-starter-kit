@@ -22,9 +22,9 @@
         ->except([...Enquiry::CONTACT_FIELDS, 'ip', 'ip_address'])
         ->filter(fn ($value) => $value !== null && $value !== '' && $value !== []);
 
-    $firstName = Str::before($enquiry->field('name') ?? '', ' ') ?: 'there';
-    $replySubject = old('subject', $subject ? 'Re: ' . $subject : 'Your enquiry to ' . \App\Helpers\Settings::appName());
-    $replyBody = old('body', "Hi {$firstName},\n\n\n\nBest regards,\n{$user->name}\n" . \App\Helpers\Settings::appName());
+    $replyDraft = \App\Support\EmailTemplates::render('enquiry_reply', \App\Mail\EnquiryReplyMail::variablesFor($enquiry, $user));
+    $replySubject = old('subject', $replyDraft['subject']);
+    $replyBody = old('body', $replyDraft['bodyText']);
 
     $needsNote = collect(EnquiryStatus::cases())
         ->filter(fn ($case) => $case->needsNote())

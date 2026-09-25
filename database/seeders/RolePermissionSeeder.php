@@ -47,6 +47,8 @@ class RolePermissionSeeder extends Seeder
             'admin.settings.date-time.update',
             'admin.settings.security.view',
             'admin.settings.security.update',
+            'admin.settings.email-templates.view',
+            'admin.settings.email-templates.update',
 
             'admin.activity-logs.view',
             'admin.activity-logs.clear',

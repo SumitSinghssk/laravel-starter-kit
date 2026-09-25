@@ -2,37 +2,40 @@
 
 namespace App\Mail;
 
-use App\Helpers\Settings;
 use App\Models\User;
 use App\Support\UserAgent;
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 
-class AdminPasswordResetMail extends Mailable
+class AdminPasswordResetMail extends TemplateMail
 {
     public function __construct(public User $user, public string $token, public ?string $ip = null, public ?string $userAgent = null) {}
 
-    public function envelope(): Envelope
+    protected function templateKey(): string
     {
-        return new Envelope(subject: 'Reset your '.Settings::appName().' password');
+        return 'password_reset';
     }
 
-    public function content(): Content
+    protected function variables(): array
     {
         $agent = UserAgent::describe($this->userAgent);
 
-        return new Content(
-            view: 'emails.admin-password-reset',
-            with: [
-                'appName' => Settings::appName(),
-                'name' => $this->user->name,
-                'email' => $this->user->email,
-                'url' => route('admin.password.reset', ['token' => $this->token, 'email' => $this->user->email]),
-                'minutes' => (int) config('auth.passwords.users.expire', 60),
-                'device' => $agent['browser'].' on '.$agent['os'],
-                'ip' => $this->ip ?: 'Unknown',
-            ],
-        );
+        return [
+            'name' => $this->user->name,
+            'email' => $this->user->email,
+            'minutes' => (int) config('auth.passwords.users.expire', 60),
+            'device' => $agent['browser'].' on '.$agent['os'],
+            'ip' => $this->ip ?: 'Unknown',
+        ];
+    }
+
+    protected function details(): array
+    {
+        $variables = $this->variables();
+
+        return ['Requested from' => $variables['device'], 'IP address' => $variables['ip']];
+    }
+
+    protected function actionUrl(): ?string
+    {
+        return route('admin.password.reset', ['token' => $this->token, 'email' => $this->user->email]);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Mail\AccountLockedMail;
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Support\EmailTemplates;
 use App\Support\SecuritySettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -64,10 +65,12 @@ class AccountLockout
 
         notify('Security', 'Account locked', "{$user->name}'s account was locked after {$failures} failed sign-ins", ['ip' => $request->ip(), 'user_agent' => $request->userAgent()], route('admin.users.edit', $user));
 
-        try {
-            Mail::to($user)->send(new AccountLockedMail($user, $failures, $request->ip(), $request->userAgent()));
-        } catch (Throwable $e) {
-            report($e);
+        if (EmailTemplates::enabled('account_locked')) {
+            try {
+                Mail::to($user)->send(new AccountLockedMail($user, $failures, $request->ip(), $request->userAgent()));
+            } catch (Throwable $e) {
+                report($e);
+            }
         }
 
         return true;

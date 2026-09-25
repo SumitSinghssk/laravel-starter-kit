@@ -13,4 +13,6 @@
     @endif
 @endsection
 
-@section('footer', 'Reply to this email to answer ' . $senderName . ' directly. Reference ' . $reference . '.')
+@if (filled($footer))
+    @section('footer', $footer)
+@endif

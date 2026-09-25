@@ -7,6 +7,7 @@ use App\Mail\AdminPasswordResetMail;
 use App\Mail\PasswordChangedMail;
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Support\EmailTemplates;
 use App\Support\MailSettings;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Passwords\PasswordBroker;
@@ -78,7 +79,9 @@ class AdminPasswordReset
 
         notify('Security', 'Password reset', "{$user->name} reset their password with a {$via}", ['ip' => $ip, 'user_agent' => $userAgent], route('admin.users.edit', $user));
 
-        rescue(fn () => Mail::to($user)->send(new PasswordChangedMail($user, $ip, $userAgent)));
+        if (EmailTemplates::enabled('password_changed')) {
+            rescue(fn () => Mail::to($user)->send(new PasswordChangedMail($user, $ip, $userAgent)));
+        }
 
         return $ended;
     }

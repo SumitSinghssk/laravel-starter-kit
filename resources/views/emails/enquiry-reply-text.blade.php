@@ -1,7 +1,7 @@
 {!! $body !!}
 @if ($original)
-    ---- Your message{{ $receivedAt ? ' on ' . $receivedAt : '' }}:
+    ---- Your message{!! $receivedAt ? ' on ' . $receivedAt : '' !!}:
     {!! $original !!}
 @endif
 
--- {{ $appName }} · Reference {{ $reference }}
+-- {!! $appName !!}{!! filled($footer) ? ' · ' . $footer : '' !!}

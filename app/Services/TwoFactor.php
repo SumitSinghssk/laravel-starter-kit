@@ -6,6 +6,7 @@ use App\Helpers\Settings;
 use App\Mail\TwoFactorNoticeMail;
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Support\EmailTemplates;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
@@ -236,6 +237,10 @@ class TwoFactor
 
     public function notify(User $user, string $event, Request $request, ?User $by = null): void
     {
+        if (! EmailTemplates::enabled(TwoFactorNoticeMail::templateFor($event))) {
+            return;
+        }
+
         try {
             Mail::to($user)->send(new TwoFactorNoticeMail($user, $event, $request->ip(), $request->userAgent(), $by));
         } catch (Throwable $e) {
