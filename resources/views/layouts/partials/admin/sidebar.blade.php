@@ -63,24 +63,6 @@
         </button>
     </div>
 
-    <div class="lg:collapsed:px-2.5 shrink-0 px-3 pb-2">
-        <button
-            type="button"
-            x-on:click="$dispatch('open-command-palette')"
-            class="group lg:collapsed:justify-center lg:collapsed:px-0 flex h-8.5 w-full cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 text-sm text-slate-400 shadow-xs transition hover:border-slate-300 hover:text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:text-slate-300"
-            aria-label="Search and jump to a page"
-            title="Search (Ctrl K)"
-        >
-            <x-admin.icon name="search" class="h-4 w-4" />
-            <span class="lg:collapsed:hidden flex-1 text-left">Search…</span>
-            <kbd
-                class="lg:collapsed:hidden rounded border border-slate-200 px-1 font-sans text-[10px] font-semibold text-slate-400 dark:border-slate-700"
-            >
-                Ctrl K
-            </kbd>
-        </button>
-    </div>
-
     @php
         $groups = collect($links)
             ->map(fn ($section) => [...$section, 'visible' => collect($section['items'])->filter(fn ($link) => ! isset($link['permission']) || $user->can($link['permission']))])

@@ -45,6 +45,23 @@
     </div>
 
     <div class="flex shrink-0 items-center gap-1">
+        <button
+            type="button"
+            x-on:click="$dispatch('open-command-palette')"
+            class="mr-1 inline-flex h-8 w-8 cursor-pointer items-center justify-center gap-2 rounded-lg text-sm text-slate-500 transition hover:bg-slate-200/60 hover:text-slate-900 md:w-56 md:justify-start md:border md:border-slate-200 md:bg-white md:px-2.5 md:text-slate-400 md:shadow-xs md:hover:border-slate-300 md:hover:bg-white md:hover:text-slate-600 lg:w-64 dark:text-slate-400 dark:hover:bg-slate-800 md:dark:border-slate-800 md:dark:bg-slate-900 md:dark:hover:border-slate-700 md:dark:hover:text-slate-300"
+            aria-label="Search (Ctrl K)"
+            aria-keyshortcuts="Control+K"
+            title="Search (Ctrl K)"
+        >
+            <x-admin.icon name="search" class="h-4 w-4 shrink-0" />
+            <span class="hidden flex-1 truncate text-left md:inline">Search anything…</span>
+            <kbd
+                class="hidden rounded border border-slate-200 px-1 font-sans text-[10px] font-semibold text-slate-400 md:inline dark:border-slate-700"
+            >
+                Ctrl K
+            </kbd>
+        </button>
+
         @if (rescue(fn () => \App\Support\Maintenance::isOn(), false, report: false))
             <a
                 href="{{ auth()->user() ?->can('admin.settings.maintenance.view') ? route('admin.settings.index', ['tab' => 'maintenance']) : url('/') }}"

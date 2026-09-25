@@ -109,7 +109,7 @@
                             >
                                 Ctrl K
                             </kbd>
-                            to jump anywhere
+                            to search anything
                         </span>
                     </footer>
                 </div>

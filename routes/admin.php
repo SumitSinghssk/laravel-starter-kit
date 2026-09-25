@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\RolePermissionController;
+use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\Setting\ActivityLogController;
 use App\Http\Controllers\Admin\Setting\BasicSettingController;
@@ -67,6 +68,7 @@ Route::middleware('log.admin.activity')->prefix('admin')->name('admin.')->group(
     Route::middleware(['auth:web', 'idle.timeout', 'two-factor.required'])->group(function () {
         Route::post('logout', [AdminAuthController::class, 'destroy'])->name('logout');
         Route::post('session/ping', fn () => response()->json(['ok' => true]))->name('session.ping');
+        Route::get('search', SearchController::class)->middleware('throttle:admin-search')->name('search');
 
         Route::prefix('account/two-factor')->name('two-factor.')->controller(TwoFactorController::class)->group(function () {
             Route::get('/', 'show')->name('show');

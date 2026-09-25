@@ -42,8 +42,7 @@
                 'defaults' => EmailTemplates::defaults($key),
                 'enabled' => EmailTemplates::enabled($key),
                 'customised' => EmailTemplates::isCustomised($key),
-                'updated' =>
-                    $custom && filled($custom['updated_at'] ?? null) ? 'Edited ' . LocalTime::dateTime(Carbon::parse($custom['updated_at'])) . (filled($custom['updated_by'] ?? null) ? ' by ' . $custom['updated_by'] : '') : null,
+                'updated' => $custom && filled($custom['updated_at'] ?? null) ? 'Edited ' . LocalTime::dateTime(Carbon::parse($custom['updated_at'])) . (filled($custom['updated_by'] ?? null) ? ' by ' . $custom['updated_by'] : '') : null,
             ];
         })
         ->all();

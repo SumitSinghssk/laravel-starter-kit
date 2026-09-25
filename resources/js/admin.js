@@ -2,6 +2,7 @@ import './bootstrap';
 
 import Alpine from 'alpinejs';
 import registerAppearance from './admin/appearance';
+import registerCommandPalette from './admin/command-palette';
 import registerEmailTemplates from './admin/email-templates';
 import registerAdminForms from './admin/forms';
 import registerGallery from './admin/gallery';
@@ -153,6 +154,7 @@ registerAdminForms(Alpine);
 registerGallery(Alpine);
 registerMediaLibrary(Alpine);
 registerAppearance(Alpine);
+registerCommandPalette(Alpine);
 registerEmailTemplates(Alpine);
 registerMenus(Alpine);
 registerIdle(Alpine);
