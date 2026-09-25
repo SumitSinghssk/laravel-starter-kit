@@ -231,6 +231,39 @@
                     window.addEventListener('admin-theme-changed', function (e) {
                         initTinyMCE(e.detail.isDark);
                     });
+
+                    document.querySelectorAll('textarea.tinymce[required]').forEach((textarea) => {
+                        textarea.removeAttribute('required');
+                        textarea.dataset.required = 'true';
+                    });
+
+                    const form = document.querySelector('textarea.tinymce')?.closest('form');
+                    if (!form) return;
+
+                    form.addEventListener('submit', function (e) {
+                        if (window.tinymce) tinymce.triggerSave();
+
+                        let firstInvalid = null;
+
+                        form.querySelectorAll('textarea.tinymce[data-required="true"]').forEach((textarea) => {
+                            const editor = tinymce.get(textarea.id);
+                            const value = editor ? editor.getContent({ format: 'text' }).trim() : textarea.value.trim();
+
+                            if (!value && !firstInvalid) {
+                                firstInvalid = { textarea, editor };
+                            }
+                        });
+
+                        if (firstInvalid) {
+                            e.preventDefault();
+                            const { textarea, editor } = firstInvalid;
+                            const container = editor ? editor.getContainer() : textarea;
+
+                            container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            container.classList.add('ring-2', 'ring-red-500', 'rounded-lg');
+                            editor ? editor.focus() : textarea.focus();
+                        }
+                    });
                 });
             </script>
         @endpush

@@ -139,40 +139,6 @@
                     :current="$testimonial?->photo_url ?? null"
                 />
             </x-admin.card>
-
-            <x-admin.card title="Preview" text="Roughly how it reads on the website." icon="eye">
-                <figure class="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
-                    <div class="flex gap-0.5" x-show="rating" x-cloak>
-                        <template x-for="star in 5" :key="star">
-                            <x-admin.icon
-                                name="star"
-                                class="h-3.5 w-3.5"
-                                x-bind:class="star <= Number(rating) ? 'fill-amber-400 text-amber-400' : 'text-slate-300 dark:text-slate-600'"
-                            />
-                        </template>
-                    </div>
-
-                    <blockquote
-                        class="mt-2 line-clamp-6 text-sm text-slate-700 dark:text-slate-200"
-                        x-text="quote.trim() ? '“' + quote.trim() + '”' : 'Their testimonial will appear here.'"
-                        :class="quote.trim() ? '' : 'text-slate-400 italic dark:text-slate-500'"
-                    ></blockquote>
-
-                    <figcaption class="mt-4 flex items-center gap-2.5">
-                        <span
-                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-50 text-xs font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
-                            x-text="initials"
-                        ></span>
-                        <span class="min-w-0">
-                            <span
-                                class="block truncate text-sm font-semibold text-slate-900 dark:text-white"
-                                x-text="name || 'Client name'"
-                            ></span>
-                            <span class="block truncate text-xs text-slate-500 dark:text-slate-400" x-show="byLine" x-text="byLine"></span>
-                        </span>
-                    </figcaption>
-                </figure>
-            </x-admin.card>
         </x-slot>
     </x-admin.form-grid>
 </div>

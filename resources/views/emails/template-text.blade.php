@@ -1,21 +1,20 @@
 @if ($heading)
-{!! $heading !!}
-
+    {!! $heading !!}
 @endif
+
 {!! $bodyText !!}
 @if ($button && $url)
-
-{!! $button !!}: {!! $url !!}
+    {!! $button !!}: {!! $url !!}
 @endif
+
 @if ($details)
-
-@foreach ($details as $label => $value)
-{!! $label !!}: {!! $value !!}
-@endforeach
+    @foreach ($details as $label => $value)
+        {!! $label !!}: {!! $value !!}
+    @endforeach
 @endif
-@if ($noteText !== '')
 
-{!! $noteText !!}
+@if ($noteText !== '')
+    {!! $noteText !!}
 @endif
 
 -- {!! $appName !!} · {!! $design['footer'] !!}
