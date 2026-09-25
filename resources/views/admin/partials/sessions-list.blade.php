@@ -33,7 +33,7 @@
                 <p class="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
                     {{ $session['ip'] ?? 'Unknown IP' }}
                     ·
-                    <span title="{{ $session['last_active']->format('d M Y, H:i') }}">
+                    <span title="{{ local_datetime($session['last_active']) }}">
                         {{ $session['is_current'] || $session['online'] ? 'active now' : 'last active ' . $session['last_active']->diffForHumans() }}
                     </span>
                     @if ($session['signed_in_at'])

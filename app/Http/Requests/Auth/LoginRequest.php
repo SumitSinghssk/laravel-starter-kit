@@ -5,6 +5,10 @@ namespace App\Http\Requests\Auth;
 use App\Enums\CommonStatusEnum;
 use App\Models\Customer;
 use App\Models\User;
+use App\Services\AccountLockout;
+use App\Services\ActivityLogger;
+use App\Services\Firewall;
+use App\Support\SecuritySettings;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Http\FormRequest;
@@ -37,6 +41,14 @@ class LoginRequest extends FormRequest
         $model = $guard === 'customer' ? Customer::class : User::class;
 
         $user = $model::withTrashed()->where('email', $this->input('email'))->first();
+        $lockout = app(AccountLockout::class);
+        $lockable = $user instanceof User && ! $user->trashed();
+
+        if ($lockable && $lockout->isLocked($user)) {
+            ActivityLogger::failedLogin((string) $this->input('email'), $this);
+
+            throw ValidationException::withMessages(['email' => $lockout->message($user)]);
+        }
 
         if ($guard === 'customer') {
             if ($user && $user->trashed()) {
@@ -84,9 +96,19 @@ class LoginRequest extends FormRequest
         }
         if (! Auth::guard($guard)->attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
+            ActivityLogger::failedLogin((string) $this->input('email'), $this);
+
+            if ($lockable && $lockout->recordFailure($user, $this)) {
+                throw ValidationException::withMessages(['email' => $lockout->message($user->fresh())]);
+            }
+
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
+        }
+
+        if ($lockable) {
+            $lockout->recordSuccess($user);
         }
 
         if ($user && ($user->trashed() || $user->status?->value !== CommonStatusEnum::ACTIVE->value)) {
@@ -104,11 +126,12 @@ class LoginRequest extends FormRequest
 
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), max(1, (int) SecuritySettings::get('login_per_minute')))) {
             return;
         }
 
         event(new Lockout($this));
+        rescue(fn () => app(Firewall::class)->record($this, 'login_throttled'), report: false);
 
         $seconds = RateLimiter::availableIn($this->throttleKey());
 

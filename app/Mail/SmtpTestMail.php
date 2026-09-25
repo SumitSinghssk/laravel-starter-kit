@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Helpers\Settings;
+use App\Support\LocalTime;
 use App\Support\MailSettings;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -26,7 +27,7 @@ class SmtpTestMail extends Mailable
                 'server' => $this->values['host'].':'.$this->values['port'],
                 'encryption' => MailSettings::ENCRYPTIONS[$this->values['encryption'] ?? 'tls'] ?? 'TLS',
                 'fromAddress' => $this->values['from_address'],
-                'sentAt' => now()->format('d M Y, H:i'),
+                'sentAt' => LocalTime::dateTime(now(), true),
             ],
         );
     }

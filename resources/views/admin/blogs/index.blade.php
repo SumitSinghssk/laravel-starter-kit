@@ -104,7 +104,7 @@
 
                     <td class="whitespace-nowrap">
                         @if ($blog->published_at)
-                            <span class="block text-slate-700 dark:text-slate-200">{{ $blog->published_at->format('d M Y') }}</span>
+                            <span class="block text-slate-700 dark:text-slate-200">{{ local_date($blog->published_at) }}</span>
                             <span class="text-xs text-slate-400">
                                 {{ $blog->published_at->isFuture() ? 'Scheduled' : $blog->published_at->diffForHumans() }}
                             </span>

@@ -77,6 +77,8 @@
                         </a>
                     </div>
 
+                    <x-bot-protection login />
+
                     <x-admin.button full size="lg">
                         <span x-text="submitting ? 'Signing in…' : 'Sign in'">Sign in</span>
                     </x-admin.button>

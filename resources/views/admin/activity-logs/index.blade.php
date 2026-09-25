@@ -19,6 +19,8 @@
         'two_factor_codes' => ['New recovery codes', 'info', 'key'],
         'two_factor_recovery' => ['Recovery code used', 'warning', 'key'],
         'two_factor_failed' => ['Wrong 2FA code', 'danger', 'x-circle'],
+        'account_locked' => ['Account locked', 'danger', 'lock'],
+        'account_unlocked' => ['Account unlocked', 'success', 'lock'],
         'viewed' => ['Viewed', 'info', 'eye'],
         'created' => ['Created', 'success', 'plus'],
         'updated' => ['Updated', 'warning', 'pencil'],
@@ -162,7 +164,7 @@
                 <td class="whitespace-nowrap">
                     @if ($log->created_at)
                         <span class="block text-slate-700 dark:text-slate-200" title="{{ $log->created_at_formatted }}">
-                            {{ $log->created_at->format('d M Y, H:i') }}
+                            {{ local_datetime($log->created_at) }}
                         </span>
                         <span class="text-xs text-slate-400">{{ $log->created_at->diffForHumans() }}</span>
                     @else

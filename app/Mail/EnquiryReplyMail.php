@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Helpers\Settings;
 use App\Models\Enquiry;
 use App\Models\User;
+use App\Support\LocalTime;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
@@ -38,7 +39,7 @@ class EnquiryReplyMail extends Mailable
                 'body' => $this->body,
                 'senderName' => $this->sender->name,
                 'original' => $this->quoteOriginal ? $this->enquiry->field('message') : null,
-                'receivedAt' => $this->enquiry->created_at?->format('d M Y'),
+                'receivedAt' => LocalTime::date($this->enquiry->created_at),
                 'reference' => $this->enquiry->reference,
             ],
         );

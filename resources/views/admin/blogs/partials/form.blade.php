@@ -70,7 +70,7 @@
                         name="published_at"
                         label="Publish date"
                         with-time
-                        :value="isset($blog) && $blog->published_at ? $blog->published_at->format('Y-m-d\TH:i') : ''"
+                        :value="isset($blog) && $blog->published_at ? \App\Support\LocalTime::forInput($blog->published_at) : ''"
                         hint="Leave empty to publish now. A future date schedules the post."
                     />
                 </div>

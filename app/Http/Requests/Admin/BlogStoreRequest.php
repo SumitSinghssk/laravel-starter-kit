@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Enums\CommonStatusEnum;
+use App\Support\LocalTime;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -12,6 +13,13 @@ class BlogStoreRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('published_at')) {
+            $this->merge(['published_at' => LocalTime::fromInput((string) $this->input('published_at'))?->format('Y-m-d H:i:s') ?? $this->input('published_at')]);
+        }
     }
 
     public function rules(): array

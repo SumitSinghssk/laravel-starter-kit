@@ -26,6 +26,7 @@
                 >
                     @csrf
                     <input type="hidden" name="email" value="{{ session('reset_link_sent') }}" />
+                    <x-bot-protection login />
                     <x-admin.button variant="secondary" full>
                         <span x-text="submitting ? 'Sending…' : 'Send the link again'">Send the link again</span>
                     </x-admin.button>
@@ -63,6 +64,8 @@
                         required
                         autofocus
                     />
+
+                    <x-bot-protection login />
 
                     <x-admin.button full size="lg">
                         <span x-text="submitting ? 'Sending…' : 'Send reset link'">Send reset link</span>

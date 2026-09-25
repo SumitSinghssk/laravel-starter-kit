@@ -3,6 +3,7 @@
 use App\Helpers\Settings;
 use App\Models\Notification;
 use App\Services\Media\MediaLibrary;
+use App\Support\LocalTime;
 
 if (! function_exists('settings')) {
     function settings(?string $key = null, mixed $default = null): mixed
@@ -48,5 +49,33 @@ if (! function_exists('notify')) {
             'data' => $data,
             'url' => $url,
         ]);
+    }
+}
+
+if (! function_exists('local_date')) {
+    function local_date(mixed $value): ?string
+    {
+        return LocalTime::date($value);
+    }
+}
+
+if (! function_exists('local_time')) {
+    function local_time(mixed $value): ?string
+    {
+        return LocalTime::time($value);
+    }
+}
+
+if (! function_exists('local_datetime')) {
+    function local_datetime(mixed $value): ?string
+    {
+        return LocalTime::dateTime($value);
+    }
+}
+
+if (! function_exists('local_day')) {
+    function local_day(mixed $value): ?string
+    {
+        return LocalTime::day($value);
     }
 }

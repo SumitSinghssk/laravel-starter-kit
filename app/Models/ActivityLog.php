@@ -59,9 +59,7 @@ class ActivityLog extends Model
 
     public function getCreatedAtFormattedAttribute(): string
     {
-        return $this->created_at
-            ? $this->created_at->format('d M Y, H:i:s')
-            : '—';
+        return local_datetime($this->created_at) ?? '—';
     }
 
     public function getSessionDurationFormattedAttribute(): ?string

@@ -5,9 +5,11 @@ use App\Http\Controllers\Admin\NotFoundController;
 use App\Models\Backup;
 use App\Models\GalleryUpload;
 use App\Models\User;
+use App\Services\AccountLockout;
 use App\Services\AdminPasswordReset;
 use App\Services\Backup\BackupRunner;
 use App\Services\Backup\BackupSchedule;
+use App\Services\Firewall;
 use App\Services\Health\SystemHealth;
 use App\Services\Trash\TrashManager;
 use App\Services\TwoFactor;
@@ -164,6 +166,43 @@ Artisan::command('admin:reset-two-factor {email : The admin account\'s email add
 
     return 0;
 })->purpose('Turn off two-factor sign-in for an admin who lost their phone and recovery codes');
+
+Artisan::command('admin:unlock {email : The admin account\'s email address}', function (AccountLockout $lockout) {
+    $user = User::where('email', $this->argument('email'))->first();
+
+    if (! $user) {
+        $this->error('No admin account uses that email address.');
+
+        return 1;
+    }
+
+    if (! $lockout->isLocked($user)) {
+        $this->info("{$user->name}'s account isn't locked.");
+
+        return 0;
+    }
+
+    $lockout->unlock($user, request());
+    $this->info("{$user->name} ({$user->email}) is unlocked and can sign in again.");
+
+    return 0;
+})->purpose('Unlock an admin account that was locked after too many failed sign-ins');
+
+Artisan::command('security:unblock {ip : The IP address or range to unblock}', function (Firewall $firewall) {
+    $count = $firewall->unblockIp($this->argument('ip'));
+
+    $count
+        ? $this->info("{$this->argument('ip')} is unblocked.")
+        : $this->warn("{$this->argument('ip')} isn't on the block list. Check the exact address or range in Settings → Security.");
+
+    return 0;
+})->purpose('Remove an IP address from the block list, for example if you blocked yourself');
+
+Artisan::command('security:purge', function (Firewall $firewall) {
+    $this->info($firewall->purge().' old blocked request(s) removed from the log.');
+})->purpose('Delete old entries from the blocked-requests log and expired IP blocks');
+
+Schedule::command('security:purge')->daily();
 
 Schedule::call(fn () => SystemHealth::recordScheduler())->everyMinute()->name('health:heartbeat');
 Schedule::command('health:check')->hourly();

@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Helpers\Settings;
 use App\Models\User;
+use App\Support\LocalTime;
 use App\Support\UserAgent;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -28,7 +29,7 @@ class PasswordChangedMail extends Mailable
                 'appName' => Settings::appName(),
                 'name' => $this->user->name,
                 'email' => $this->user->email,
-                'when' => now()->format('d M Y, H:i').' ('.config('app.timezone').')',
+                'when' => LocalTime::dateTime(now(), true),
                 'device' => $this->userAgent ? $agent['browser'].' on '.$agent['os'] : 'Server command',
                 'ip' => $this->ip ?: 'Unknown',
             ],

@@ -29,12 +29,14 @@ use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\Setting\ActivityLogController;
 use App\Http\Controllers\Admin\Setting\BasicSettingController;
 use App\Http\Controllers\Admin\Setting\ClearCacheController;
+use App\Http\Controllers\Admin\Setting\DateTimeSettingController;
 use App\Http\Controllers\Admin\Setting\DbDownloadController;
 use App\Http\Controllers\Admin\Setting\LogController;
 use App\Http\Controllers\Admin\Setting\MailSettingController;
 use App\Http\Controllers\Admin\Setting\MaintenanceController;
 use App\Http\Controllers\Admin\Setting\RobotsController;
 use App\Http\Controllers\Admin\Setting\ScriptSettingController;
+use App\Http\Controllers\Admin\Setting\SecuritySettingController;
 use App\Http\Controllers\Admin\Setting\SettingController;
 use App\Http\Controllers\Admin\Setting\SitemapController;
 use App\Http\Controllers\Admin\SystemHealthController;
@@ -48,21 +50,22 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('log.admin.activity')->prefix('admin')->name('admin.')->group(function () {
     Route::middleware('guest:web')->group(function () {
         Route::get('login', [AdminAuthController::class, 'index'])->name('login');
-        Route::post('login', [AdminAuthController::class, 'store'])->name('login.store');
+        Route::post('login', [AdminAuthController::class, 'store'])->middleware('bot.protect:email,login')->name('login.store');
 
         Route::controller(PasswordResetController::class)->name('password.')->group(function () {
             Route::get('forgot-password', 'create')->name('request');
-            Route::post('forgot-password', 'store')->middleware('throttle:5,1')->name('email');
+            Route::post('forgot-password', 'store')->middleware(['throttle:password-reset', 'bot.protect:email,login'])->name('email');
             Route::get('reset-password/{token}', 'edit')->name('reset');
-            Route::post('reset-password', 'update')->middleware('throttle:10,1')->name('update');
+            Route::post('reset-password', 'update')->middleware('throttle:password-reset')->name('update');
         });
 
         Route::get('two-factor-challenge', [TwoFactorChallengeController::class, 'create'])->name('two-factor.challenge');
-        Route::post('two-factor-challenge', [TwoFactorChallengeController::class, 'store'])->middleware('throttle:10,1')->name('two-factor.verify');
+        Route::post('two-factor-challenge', [TwoFactorChallengeController::class, 'store'])->middleware('throttle:two-factor')->name('two-factor.verify');
     });
 
-    Route::middleware(['auth:web', 'two-factor.required'])->group(function () {
+    Route::middleware(['auth:web', 'idle.timeout', 'two-factor.required'])->group(function () {
         Route::post('logout', [AdminAuthController::class, 'destroy'])->name('logout');
+        Route::post('session/ping', fn () => response()->json(['ok' => true]))->name('session.ping');
 
         Route::prefix('account/two-factor')->name('two-factor.')->controller(TwoFactorController::class)->group(function () {
             Route::get('/', 'show')->name('show');
@@ -132,6 +135,15 @@ Route::middleware('log.admin.activity')->prefix('admin')->name('admin.')->group(
             Route::post('email', [MailSettingController::class, 'update'])->name('email.update');
             Route::post('email/test', [MailSettingController::class, 'test'])->middleware('throttle:6,1')->name('email.test');
 
+            Route::put('date-time', DateTimeSettingController::class)->name('date-time.update');
+
+            Route::prefix('security')->name('security.')->controller(SecuritySettingController::class)->group(function () {
+                Route::put('/', 'update')->name('update');
+                Route::post('blocks', 'block')->name('blocks.store');
+                Route::delete('blocks/{block}', 'unblock')->name('blocks.destroy');
+                Route::delete('log', 'clearLog')->name('log.clear');
+            });
+
             Route::post('maintenance', [MaintenanceController::class, 'update'])->name('maintenance.update');
             Route::get('maintenance/preview', [MaintenanceController::class, 'preview'])->name('maintenance.preview');
         });
@@ -161,6 +173,7 @@ Route::middleware('log.admin.activity')->prefix('admin')->name('admin.')->group(
         Route::delete('/users/{user}/sessions/{key}', [UserSessionController::class, 'destroy'])->where('key', '[a-f0-9]{64}')->name('users.sessions.destroy');
         Route::delete('/users/{user}/sessions', [UserSessionController::class, 'destroyAll'])->name('users.sessions.destroy-all');
         Route::delete('/users/{user}/two-factor', [TwoFactorController::class, 'reset'])->name('users.two-factor.reset');
+        Route::post('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
         Route::resource('users', UserController::class);
 
         Route::prefix('notifications')->name('notifications.')->group(function () {

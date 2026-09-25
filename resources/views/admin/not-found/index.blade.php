@@ -196,10 +196,10 @@
                     </td>
 
                     <td class="whitespace-nowrap">
-                        <span class="block text-slate-700 dark:text-slate-200" title="{{ $log->last_seen_at?->format('d M Y, H:i') }}">
+                        <span class="block text-slate-700 dark:text-slate-200" title="{{ local_datetime($log->last_seen_at) }}">
                             {{ $log->last_seen_at?->diffForHumans() }}
                         </span>
-                        <span class="text-xs text-slate-400">first {{ $log->first_seen_at?->format('d M Y') }}</span>
+                        <span class="text-xs text-slate-400">first {{ local_date($log->first_seen_at) }}</span>
                     </td>
 
                     <td class="max-w-56">

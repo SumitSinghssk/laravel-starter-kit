@@ -57,7 +57,7 @@
 <x-admin :breadcrumb="[['label' => 'Enquiries', 'url' => route('admin.enquiries.index')], ['label' => $enquiry->reference]]">
     <x-admin.page-header
         :title="$enquiry->display_name"
-        :description="$enquiry->reference . ' · Received ' . $enquiry->created_at->format('d M Y, H:i') . ' · ' . $enquiry->source_label"
+        :description="$enquiry->reference . ' · Received ' . local_datetime($enquiry->created_at) . ' · ' . $enquiry->source_label"
         :back="route('admin.enquiries.index')"
     >
         <x-slot:actions>
@@ -309,7 +309,7 @@
                                             @if ($meta['to'] ?? null)
                                                 set a follow-up for
                                                 <span class="font-medium text-slate-900 dark:text-white">
-                                                    {{ \Illuminate\Support\Carbon::parse($meta['to'])->format('d M Y') }}
+                                                    {{ local_day($meta['to']) }}
                                                 </span>
                                             @else
                                                 removed the follow-up
@@ -333,7 +333,7 @@
                                 </p>
                                 <time
                                     datetime="{{ $activity->created_at->toIso8601String() }}"
-                                    title="{{ $activity->created_at->format('d M Y, H:i') }}"
+                                    title="{{ local_datetime($activity->created_at) }}"
                                     class="shrink-0 text-xs text-slate-400"
                                 >
                                     {{ $activity->created_at->diffForHumans() }}
@@ -405,7 +405,7 @@
                                 Received from the
                                 <span class="font-medium text-slate-900 dark:text-white">{{ $enquiry->source_label }}</span>
                             </p>
-                            <time class="text-xs text-slate-400" title="{{ $enquiry->created_at->format('d M Y, H:i') }}">
+                            <time class="text-xs text-slate-400" title="{{ local_datetime($enquiry->created_at) }}">
                                 {{ $enquiry->created_at->diffForHumans() }}
                             </time>
                         </div>
@@ -419,7 +419,7 @@
                 <div class="mb-4 flex items-center justify-between gap-3">
                     <x-admin.status-badge :status="$enquiry->status" />
                     @if ($enquiry->status_changed_at)
-                        <span class="text-xs text-slate-400" title="{{ $enquiry->status_changed_at->format('d M Y, H:i') }}">
+                        <span class="text-xs text-slate-400" title="{{ local_datetime($enquiry->status_changed_at) }}">
                             since {{ $enquiry->status_changed_at->diffForHumans() }}
                         </span>
                     @endif
@@ -486,13 +486,15 @@
                         </div>
 
                         <x-admin.button full x-bind:disabled="submitting || status === current">
-                            <span x-text="
-                                status === current
-                                    ? 'Pick a new status'
-                                    : submitting
-                                      ? 'Saving…'
-                                      : 'Update status'
-                            ">
+                            <span
+                                x-text="
+                                    status === current
+                                        ? 'Pick a new status'
+                                        : submitting
+                                          ? 'Saving…'
+                                          : 'Update status'
+                                "
+                            >
                                 Update status
                             </span>
                         </x-admin.button>
@@ -559,7 +561,7 @@
                             </form>
                             <p class="mt-1.5 text-xs text-slate-400">Shows under “Follow-up due” in the list on that day.</p>
                         @else
-                            <p class="text-sm text-slate-800 dark:text-slate-100">{{ $enquiry->follow_up_at?->format('d M Y') ?? 'Not set' }}</p>
+                            <p class="text-sm text-slate-800 dark:text-slate-100">{{ local_day($enquiry->follow_up_at) ?? 'Not set' }}</p>
                         @endif
                     </div>
                 </div>
@@ -637,7 +639,7 @@
                     </div>
                     <div class="{{ $dl }}">
                         <dt class="text-slate-500 dark:text-slate-400">Received</dt>
-                        <dd class="text-right text-slate-800 dark:text-slate-100">{{ $enquiry->created_at->format('d M Y, H:i') }}</dd>
+                        <dd class="text-right text-slate-800 dark:text-slate-100">{{ local_datetime($enquiry->created_at) }}</dd>
                     </div>
                     <div class="{{ $dl }}">
                         <dt class="text-slate-500 dark:text-slate-400">Source</dt>
@@ -654,7 +656,7 @@
                         <div class="{{ $dl }}">
                             <dt class="text-slate-500 dark:text-slate-400">First opened</dt>
                             <dd class="text-right text-slate-800 dark:text-slate-100">
-                                {{ $enquiry->seen_at->format('d M Y, H:i') }}
+                                {{ local_datetime($enquiry->seen_at) }}
                                 @if ($enquiry->seenBy)
                                     <span class="block text-xs text-slate-400">by {{ $enquiry->seenBy->name }}</span>
                                 @endif

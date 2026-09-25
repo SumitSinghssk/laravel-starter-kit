@@ -170,7 +170,7 @@ describe('schedule', function () {
         $schedule->save(['frequency' => 'monthly', 'monthday' => 28, 'time' => '01:00']);
         expect($schedule->lastSlot()->toDateTimeString())->toBe('2026-08-28 01:00:00');
         expect($schedule->nextRun()->toDateTimeString())->toBe('2026-09-28 01:00:00');
-        expect($schedule->describe())->toBe('On day 28 of every month at 01:00');
+        expect($schedule->describe())->toBe('On day 28 of every month at 01:00 (UTC time)');
     });
 
     test('the scheduled command backs up once per slot, and never before the schedule was set', function () {

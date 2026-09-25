@@ -88,6 +88,10 @@
                                         </span>
                                     @endif
 
+                                    @if ($user->locked_at && (! $user->locked_until || $user->locked_until->isFuture()))
+                                        <x-admin.status-badge tone="danger" label="Locked" class="shrink-0" />
+                                    @endif
+
                                     @if ($user->two_factor_confirmed_at)
                                         <span class="shrink-0 text-emerald-500" title="Two-factor sign-in is on">
                                             <x-admin.icon name="shield-check" class="h-3.5 w-3.5" />
@@ -124,7 +128,7 @@
 
                     <td class="whitespace-nowrap">
                         @if ($user->created_at)
-                            <span class="block text-slate-700 dark:text-slate-200">{{ $user->created_at->format('d M Y') }}</span>
+                            <span class="block text-slate-700 dark:text-slate-200">{{ local_date($user->created_at) }}</span>
                             <span class="text-xs text-slate-400">{{ $user->created_at->diffForHumans() }}</span>
                         @else
                             <span class="text-slate-400">—</span>

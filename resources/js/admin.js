@@ -4,6 +4,7 @@ import Alpine from 'alpinejs';
 import registerAppearance from './admin/appearance';
 import registerAdminForms from './admin/forms';
 import registerGallery from './admin/gallery';
+import registerIdle from './admin/idle';
 import registerMediaLibrary from './admin/media-library';
 import registerMenus from './admin/menus';
 
@@ -152,5 +153,6 @@ registerGallery(Alpine);
 registerMediaLibrary(Alpine);
 registerAppearance(Alpine);
 registerMenus(Alpine);
+registerIdle(Alpine);
 
 Alpine.start();

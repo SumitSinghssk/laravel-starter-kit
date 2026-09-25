@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UserStoreRequest;
 use App\Http\Requests\Admin\UserUpdateRequest;
 use App\Models\User;
+use App\Services\AccountLockout;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -37,6 +38,10 @@ class UserController extends Controller
 
         if ($request->filled('role')) {
             $query->role($request->role);
+        }
+
+        if ($request->input('access') === 'locked') {
+            $query->whereNotNull('locked_at')->where(fn ($q) => $q->whereNull('locked_until')->orWhere('locked_until', '>', now()));
         }
 
         $users = $query->latest()
@@ -221,6 +226,19 @@ class UserController extends Controller
         }
 
         return $requested;
+    }
+
+    public function unlock(Request $request, User $user, AccountLockout $lockout)
+    {
+        Gate::authorize('admin.users.unlock');
+
+        if (! $lockout->isLocked($user)) {
+            return back()->with('success', "{$user->name}'s account isn't locked.");
+        }
+
+        $lockout->unlock($user, $request, $request->user());
+
+        return back()->with('success', "{$user->name}'s account is unlocked. They can sign in again.");
     }
 
     private function resolvePermissions(array $requested, ?User $target = null): array

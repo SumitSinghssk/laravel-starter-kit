@@ -30,7 +30,10 @@ function sentResetUrl(): string
     return $url;
 }
 
-beforeEach(fn () => config(['mail.default' => 'array']));
+beforeEach(function () {
+    config(['mail.default' => 'array']);
+    withoutBotTrap();
+});
 
 test('the login page links to forgot password, and the pages load for guests', function () {
     $this->get(route('admin.login'))->assertOk()->assertSee(route('admin.password.request'))->assertSee('Forgot password?');

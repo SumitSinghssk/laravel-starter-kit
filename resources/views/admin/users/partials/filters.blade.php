@@ -7,4 +7,6 @@
     />
 
     <x-admin.filter.select name="status" label="Status" icon="circle-dot" :options="\App\Enums\CommonStatusEnum::dotOptions()" />
+
+    <x-admin.filter.select name="access" label="Sign-in" icon="lock" :options="['locked' => ['label' => 'Locked', 'dot' => 'bg-red-500']]" />
 </x-admin.filter.bar>

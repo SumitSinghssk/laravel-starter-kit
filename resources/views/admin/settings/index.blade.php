@@ -25,6 +25,34 @@
     if (
         auth()
             ->user()
+            ->can('admin.settings.date-time.view')
+    ) {
+        $tabs[] = ['id' => 'date-time', 'label' => 'Date & time', 'hint' => \App\Support\LocalTime::zoneLabel(), 'icon' => 'clock'];
+    }
+    if (
+        auth()
+            ->user()
+            ->can('admin.settings.security.view')
+    ) {
+        $tabs[] = [
+            'id' => 'security',
+            'label' => 'Security',
+            'hint' => 'Lockout, idle sign-out, bots & IP blocks',
+            'icon' => 'shield-check',
+            'sections' => [
+                ['id' => 'lockout', 'label' => 'Account lockout', 'icon' => 'lock'],
+                ['id' => 'idle', 'label' => 'Idle sign-out', 'icon' => 'clock'],
+                ['id' => 'limits', 'label' => 'Rate limits', 'icon' => 'zap'],
+                ['id' => 'bots', 'label' => 'Bot protection', 'icon' => 'bot'],
+                ['id' => 'autoblock', 'label' => 'Automatic blocking', 'icon' => 'shield'],
+                ['id' => 'blocked-ips', 'label' => 'Blocked IPs', 'icon' => 'x-circle'],
+                ['id' => 'blocked-log', 'label' => 'Blocked requests', 'icon' => 'list'],
+            ],
+        ];
+    }
+    if (
+        auth()
+            ->user()
             ->can('admin.settings.email.view')
     ) {
         $mail = \App\Support\MailSettings::settings();
@@ -174,6 +202,18 @@
             @can('admin.settings.basic-details.view')
                 <div x-show="activeTab === 'basic'" {{ $cloak('basic') }}>
                     @include('admin.settings.partials.basic-info')
+                </div>
+            @endcan
+
+            @can('admin.settings.date-time.view')
+                <div x-show="activeTab === 'date-time'" {{ $cloak('date-time') }}>
+                    @include('admin.settings.partials.date-time')
+                </div>
+            @endcan
+
+            @can('admin.settings.security.view')
+                <div x-show="activeTab === 'security'" {{ $cloak('security') }}>
+                    @include('admin.settings.partials.security')
                 </div>
             @endcan
 

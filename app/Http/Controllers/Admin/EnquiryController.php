@@ -9,6 +9,7 @@ use App\Mail\EnquiryReplyMail;
 use App\Models\Enquiry;
 use App\Models\EnquiryActivity;
 use App\Models\User;
+use App\Support\LocalTime;
 use App\Support\MailSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -262,7 +263,7 @@ class EnquiryController extends Controller
 
         $enquiry->scheduleFollowUp($when, $validated['note'] ?? null, $request->user());
 
-        return $this->backToActivity($enquiry, $when ? 'Follow-up set for '.$when->format('d M Y').'.' : 'Follow-up removed.');
+        return $this->backToActivity($enquiry, $when ? 'Follow-up set for '.LocalTime::day($when).'.' : 'Follow-up removed.');
     }
 
     public function reply(Request $request, Enquiry $enquiry)

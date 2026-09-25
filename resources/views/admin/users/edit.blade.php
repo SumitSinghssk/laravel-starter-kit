@@ -62,6 +62,48 @@
         </x-admin.card>
     @endcan
 
+    @php($isLocked = app(\App\Services\AccountLockout::class)->isLocked($user))
+
+    <x-admin.card class="mt-6" title="Sign-in status" icon="lock">
+        @if ($isLocked)
+            @can('admin.users.unlock')
+                <x-slot:actions>
+                    <form method="POST" action="{{ route('admin.users.unlock', $user) }}">
+                        @csrf
+                        <x-admin.button size="sm" icon="check">Unlock account</x-admin.button>
+                    </form>
+                </x-slot>
+            @endcan
+        @endif
+
+        <div class="flex items-center gap-3">
+            <span
+                @class([
+                    'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                    'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' => $isLocked,
+                    'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' => ! $isLocked,
+                ])
+            >
+                <x-admin.icon :name="$isLocked ? 'lock' : 'check-circle'" class="h-4.5 w-4.5" />
+            </span>
+            <div class="text-sm">
+                <p class="font-medium text-slate-900 dark:text-white">
+                    {{ $isLocked ? 'Locked since ' . local_datetime($user->locked_at) : 'Can sign in' }}
+                </p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    @if ($isLocked)
+                        {{ $user->locked_until ? 'Unlocks by itself at ' . local_datetime($user->locked_until) . '.' : 'Stays locked until someone unlocks it.' }}
+                        Resetting the password also unlocks it.
+                    @elseif ($user->failed_logins > 0)
+                        {{ $user->failed_logins }} failed {{ str('attempt')->plural($user->failed_logins) }} since the last successful sign-in.
+                    @else
+                        No failed sign-in attempts.
+                    @endif
+                </p>
+            </div>
+        </div>
+    </x-admin.card>
+
     <x-admin.card class="mt-6" title="Two-factor sign-in" icon="shield-check">
         @if ($user->hasTwoFactor() && ! $user->is(auth()->user()))
             @can('admin.users.two-factor')
@@ -94,7 +136,7 @@
             </span>
             <div class="text-sm">
                 <p class="font-medium text-slate-900 dark:text-white">
-                    {{ $user->hasTwoFactor() ? 'On since ' . $user->two_factor_confirmed_at->format('d M Y') : 'Off' }}
+                    {{ $user->hasTwoFactor() ? 'On since ' . local_date($user->two_factor_confirmed_at) : 'Off' }}
                 </p>
                 <p class="text-xs text-slate-500 dark:text-slate-400">
                     @if ($user->requiresTwoFactor())

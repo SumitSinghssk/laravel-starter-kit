@@ -4,6 +4,7 @@ namespace App\Services\Backup;
 
 use App\Models\Backup;
 use App\Models\Setting;
+use App\Support\LocalTime;
 use Illuminate\Support\Carbon;
 
 class BackupSchedule
@@ -42,10 +43,10 @@ class BackupSchedule
             return null;
         }
 
-        $now ??= now();
+        $now = ($now ?? now())->copy()->setTimezone(LocalTime::zone());
         [$hour, $minute] = array_map('intval', explode(':', $s['time']));
 
-        return match ($s['frequency']) {
+        $slot = match ($s['frequency']) {
             'weekly' => tap($now->copy()->startOfWeek(Carbon::MONDAY)->addDays($s['weekday'] - 1)->setTime($hour, $minute), function (Carbon $slot) use ($now) {
                 if ($slot->gt($now)) {
                     $slot->subWeek();
@@ -62,6 +63,8 @@ class BackupSchedule
                 }
             }),
         };
+
+        return $slot->setTimezone(config('app.timezone'));
     }
 
     public function nextRun(?Carbon $now = null): ?Carbon
@@ -78,12 +81,15 @@ class BackupSchedule
         }
 
         $s = $this->settings();
+        $local = $last->copy()->setTimezone(LocalTime::zone());
 
-        return match ($s['frequency']) {
-            'weekly' => $last->copy()->addWeek(),
-            'monthly' => $last->copy()->startOfMonth()->addMonthNoOverflow()->addDays($s['monthday'] - 1)->setTimeFrom($last),
-            default => $last->copy()->addDay(),
+        $next = match ($s['frequency']) {
+            'weekly' => $local->addWeek(),
+            'monthly' => $local->copy()->startOfMonth()->addMonthNoOverflow()->addDays($s['monthday'] - 1)->setTimeFrom($local),
+            default => $local->addDay(),
         };
+
+        return $next->setTimezone(config('app.timezone'));
     }
 
     public function isDue(?Carbon $now = null): bool
@@ -110,10 +116,12 @@ class BackupSchedule
             return 'Automatic backups are off';
         }
 
+        $zone = ' ('.str_replace('_', ' ', LocalTime::zone()).' time)';
+
         return match ($s['frequency']) {
-            'weekly' => 'Every '.self::WEEKDAYS[$s['weekday']].' at '.$s['time'],
-            'monthly' => 'On day '.$s['monthday'].' of every month at '.$s['time'],
-            default => 'Every day at '.$s['time'],
+            'weekly' => 'Every '.self::WEEKDAYS[$s['weekday']].' at '.$s['time'].$zone,
+            'monthly' => 'On day '.$s['monthday'].' of every month at '.$s['time'].$zone,
+            default => 'Every day at '.$s['time'].$zone,
         };
     }
 }

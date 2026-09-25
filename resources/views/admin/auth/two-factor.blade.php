@@ -238,7 +238,7 @@
                         <div>
                             <p class="text-sm font-semibold text-slate-900 dark:text-white">Two-factor sign-in is on</p>
                             <p class="text-xs text-slate-500 dark:text-slate-400">
-                                Since {{ $user->two_factor_confirmed_at->format('d M Y') }}
+                                Since {{ local_date($user->two_factor_confirmed_at) }}
                                 @if ($required)
                                     · required by your role
                                 @endif

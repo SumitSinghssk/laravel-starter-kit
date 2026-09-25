@@ -15,7 +15,10 @@ use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
-beforeEach(fn () => Mail::fake());
+beforeEach(function () {
+    Mail::fake();
+    withoutBotTrap();
+});
 
 function tfaUser(array $permissions = ['dashboard.view', 'profile.view'], string $role = 'editor', bool $required = false): User
 {

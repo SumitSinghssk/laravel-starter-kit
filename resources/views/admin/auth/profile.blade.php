@@ -63,7 +63,7 @@
                 @if ($me->created_at)
                     <p class="mt-3 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
                         <x-admin.icon name="calendar" class="h-3.5 w-3.5" />
-                        Member since {{ $me->created_at->format("d M Y") }}
+                        Member since {{ local_date($me->created_at) }}
                     </p>
                 @endif
             </div>
@@ -353,7 +353,7 @@
                         <div class="text-sm">
                             <p class="font-medium text-slate-900 dark:text-white">{{ $me->hasTwoFactor() ? "On" : "Off" }}</p>
                             <p class="text-xs text-slate-500 dark:text-slate-400">
-                                {{ $me->hasTwoFactor() ? "Since " . $me->two_factor_confirmed_at->format("d M Y") : "Takes about a minute with a free authenticator app." }}
+                                {{ $me->hasTwoFactor() ? "Since " . local_date($me->two_factor_confirmed_at) : "Takes about a minute with a free authenticator app." }}
                             </p>
                         </div>
                     </div>

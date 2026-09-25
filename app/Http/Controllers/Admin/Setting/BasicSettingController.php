@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Setting;
 use App\Helpers\Settings;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Support\LocalTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -94,6 +95,7 @@ class BasicSettingController extends Controller
         $setting->save();
 
         Settings::flush();
+        LocalTime::forget();
 
         return back()->with('success', 'Settings updated successfully.');
     }

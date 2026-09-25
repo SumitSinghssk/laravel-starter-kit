@@ -399,7 +399,7 @@
                                 <x-admin.icon name="calendar" class="h-3.5 w-3.5" />
                                 Joined
                             </dt>
-                            <dd class="font-medium text-slate-700 dark:text-slate-200">{{ $user->created_at?->format('d M Y') }}</dd>
+                            <dd class="font-medium text-slate-700 dark:text-slate-200">{{ local_date($user->created_at) }}</dd>
                         </div>
                         <div class="flex items-center justify-between gap-3">
                             <dt class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">

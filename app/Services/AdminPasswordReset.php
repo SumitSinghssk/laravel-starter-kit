@@ -65,6 +65,9 @@ class AdminPasswordReset
         $user->forceFill([
             'password' => $password,
             'remember_token' => Str::random(60),
+            'failed_logins' => 0,
+            'locked_at' => null,
+            'locked_until' => null,
         ])->save();
 
         $ended = $this->sessions->endAll($user);

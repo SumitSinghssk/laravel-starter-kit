@@ -3,10 +3,13 @@
 namespace App\Services\Health;
 
 use App\Models\Backup;
+use App\Models\BlockedRequest;
 use App\Models\User;
 use App\Services\Backup\BackupSchedule;
+use App\Support\LocalTime;
 use App\Support\MailSettings;
 use App\Support\Maintenance;
+use App\Support\SecuritySettings;
 use FilesystemIterator;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Arr;
@@ -155,7 +158,7 @@ class SystemHealth
     {
         $lines = [
             config('app.name').' system health',
-            'Checked '.Carbon::createFromTimestamp($result['summary']['checked_at'])->toDayDateTimeString().' ('.config('app.timezone').')',
+            'Checked '.LocalTime::dateTime(Carbon::createFromTimestamp($result['summary']['checked_at']), true),
             'Overall: '.strtoupper($result['summary']['status']).' - '.$result['summary']['errors'].' problem(s), '.$result['summary']['warnings'].' warning(s)',
             '',
         ];
@@ -179,7 +182,7 @@ class SystemHealth
 
         $checks[] = $this->check('app.laravel', 'Laravel', self::INFO, app()->version(), 'Framework version.');
         $checks[] = $this->check('app.environment', 'Environment', self::INFO, app()->environment(), app()->isProduction() ? 'Running as the live site.' : 'Not marked as production (APP_ENV).');
-        $checks[] = $this->check('app.timezone', 'Timezone', self::INFO, config('app.timezone'), 'Used for dates, schedules and backups.');
+        $checks[] = $this->check('app.timezone', 'Site timezone', self::INFO, LocalTime::zoneLabel(), 'Every date in the admin and every scheduled backup uses it. Change it in Settings → Date & time.');
 
         if ($this->requestHost) {
             $configured = parse_url((string) config('app.url'), PHP_URL_HOST);
@@ -527,7 +530,7 @@ class SystemHealth
         $checks = [match (true) {
             ! $last => $this->check('backups.last', 'Last backup', self::WARNING, 'Never', 'There is no backup to restore from if something goes wrong.', 'Make one on the Backups page, and turn on automatic backups.'),
             $age->lt(now()->subDays($allowedDays)) => $this->check('backups.last', 'Last backup', self::WARNING, $age->diffForHumans(), $auto ? 'Older than the schedule expects. Check the scheduler.' : 'Over a month old.', $auto ? null : 'Make a fresh backup, or turn on automatic backups.'),
-            default => $this->check('backups.last', 'Last backup', self::OK, $age->diffForHumans(), Number::fileSize($last->size, 1).', '.$age->toDayDateTimeString().'.'),
+            default => $this->check('backups.last', 'Last backup', self::OK, $age->diffForHumans(), Number::fileSize($last->size, 1).', '.LocalTime::dateTime($age).'.'),
         }];
 
         if ($latest && $latest->status === Backup::FAILED) {
@@ -570,6 +573,22 @@ class SystemHealth
             $missingRequired > 0 => $this->check('security.two_factor', 'Two-factor sign-in', self::INFO, "{$withTwoFactor} of {$admins->count()} users", "{$missingRequired} ".Str::plural('user', $missingRequired).' in a role that requires it will be asked to set it up at their next page view.'),
             default => $this->check('security.two_factor', 'Two-factor sign-in', self::INFO, "{$withTwoFactor} of {$admins->count()} users", 'Accounts without it can be taken over with just a stolen password.', 'Require it for admin roles on the Roles page.'),
         };
+
+        $security = SecuritySettings::all();
+        $protections = array_filter([
+            $security['lockout_enabled'] ? 'account lockout' : null,
+            $security['honeypot'] ? 'bot trap' : null,
+            SecuritySettings::captchaEnabled() ? 'CAPTCHA' : null,
+            $security['auto_block'] ? 'automatic IP blocking' : null,
+            (int) $security['idle_minutes'] > 0 ? 'idle sign-out' : null,
+        ]);
+        $checks[] = count($protections) >= 3
+            ? $this->check('security.protection', 'Attack protection', self::OK, count($protections).' of 5 on', 'On: '.implode(', ', $protections).'.')
+            : $this->check('security.protection', 'Attack protection', self::WARNING, count($protections).' of 5 on', $protections ? 'Only '.implode(', ', $protections).' is on.' : 'Lockout, bot trap and IP blocking are all off.', 'Turn them on in Settings → Security.');
+
+        $lockedAccounts = User::whereNotNull('locked_at')->where(fn ($q) => $q->whereNull('locked_until')->orWhere('locked_until', '>', now()))->count();
+        $blockedToday = BlockedRequest::where('created_at', '>=', now()->subDay())->count();
+        $checks[] = $this->check('security.activity', 'Blocked in 24 hours', $lockedAccounts ? self::WARNING : self::INFO, "{$blockedToday} ".Str::plural('request', $blockedToday), $lockedAccounts ? "{$lockedAccounts} ".Str::plural('account', $lockedAccounts).' locked right now.' : 'No accounts are locked.', $lockedAccounts ? 'Check Users → filter “Locked”, and unlock accounts you trust.' : null);
 
         $checks[] = file_exists(public_path('.env'))
             ? $this->check('security.env', '.env file', self::ERROR, 'Inside public folder', 'Anyone could download your passwords and keys.', 'Move .env out of the public folder right away and change the passwords in it.')

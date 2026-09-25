@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\AccountLockout;
 use App\Services\AdminLogin;
 use App\Services\TwoFactor;
 use Illuminate\Http\RedirectResponse;
@@ -32,7 +33,7 @@ class TwoFactorChallengeController extends Controller
         ]);
     }
 
-    public function store(Request $request, AdminLogin $login): RedirectResponse
+    public function store(Request $request, AdminLogin $login, AccountLockout $lockout): RedirectResponse
     {
         $pending = $this->twoFactor->pendingLogin($request);
 
@@ -41,6 +42,12 @@ class TwoFactorChallengeController extends Controller
         }
 
         $user = $pending['user'];
+
+        if ($lockout->isLocked($user)) {
+            $request->session()->forget(TwoFactor::PENDING_LOGIN);
+
+            return to_route('admin.login')->with('error', $lockout->message($user));
+        }
         $useRecovery = $request->boolean('recovery');
         $field = $useRecovery ? 'recovery_code' : 'code';
 
@@ -65,6 +72,12 @@ class TwoFactorChallengeController extends Controller
             RateLimiter::hit($key, 300);
             $this->twoFactor->log($user, 'two_factor_failed', $useRecovery ? 'Wrong recovery code at sign-in' : 'Wrong two-factor code at sign-in', $request, suspicious: true);
 
+            if ($lockout->recordFailure($user, $request, $useRecovery ? 'recovery code' : 'two-factor code')) {
+                $request->session()->forget(TwoFactor::PENDING_LOGIN);
+
+                return to_route('admin.login')->with('error', $lockout->message($user->fresh()));
+            }
+
             throw ValidationException::withMessages([
                 $field => $useRecovery
                     ? 'That recovery code is wrong or was already used.'
@@ -73,6 +86,7 @@ class TwoFactorChallengeController extends Controller
         }
 
         RateLimiter::clear($key);
+        $lockout->recordSuccess($user);
         $request->session()->forget(TwoFactor::PENDING_LOGIN);
 
         $login->complete($request, $user, (bool) $pending['remember'], $useRecovery ? 'recovery code' : 'two-factor code');

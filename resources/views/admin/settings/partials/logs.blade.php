@@ -106,7 +106,7 @@
 
                 <td class="whitespace-nowrap">
                     @if ($modifiedAt)
-                        <p class="text-sm text-slate-700 dark:text-slate-300">{{ $modifiedAt->format('d M Y') }}</p>
+                        <p class="text-sm text-slate-700 dark:text-slate-300">{{ local_date($modifiedAt) }}</p>
                         <p class="text-xs text-slate-400">{{ $modifiedAt->diffForHumans() }}</p>
                     @else
                         <p class="text-sm text-slate-700 dark:text-slate-300">{{ $log['modified'] }}</p>

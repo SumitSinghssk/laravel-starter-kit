@@ -8,7 +8,7 @@
 ]">
     <x-admin.page-header
         :title="$gallery->title"
-        :description="$gallery->event_date ? 'Event date: ' . $gallery->event_date->format('d M Y') : 'Photos, videos and YouTube links in this album.'"
+        :description="$gallery->event_date ? 'Event date: ' . local_day($gallery->event_date) : 'Photos, videos and YouTube links in this album.'"
         icon="image"
         :back="route('admin.galleries.index')"
     >

@@ -12,6 +12,8 @@
         'two_factor_codes' => ['New recovery codes', 'info', 'key'],
         'two_factor_recovery' => ['Recovery code used', 'warning', 'key'],
         'two_factor_failed' => ['Wrong 2FA code', 'danger', 'x-circle'],
+        'account_locked' => ['Account locked', 'danger', 'lock'],
+        'account_unlocked' => ['Account unlocked', 'success', 'lock'],
         'viewed' => ['Viewed', 'info', 'eye'],
         'created' => ['Created', 'success', 'plus'],
         'updated' => ['Updated', 'warning', 'pencil'],
@@ -261,8 +263,8 @@
             @if ($isSession && ($log->login_at || $log->logout_at))
                 <x-admin.card title="Session" icon="clock" body-class="!py-1.5">
                     <dl class="{{ $dl }}">
-                        {!! $row('Login at', $log->login_at?->format('Y-m-d H:i:s')) !!}
-                        {!! $row('Logout at', $log->logout_at?->format('Y-m-d H:i:s') ?? 'Still active') !!}
+                        {!! $row('Login at', local_datetime($log->login_at)) !!}
+                        {!! $row('Logout at', local_datetime($log->logout_at) ?? 'Still active') !!}
                         {!! $row('Duration', $log->session_duration_formatted) !!}
                         <div class="flex items-start justify-between gap-4 py-2.5">
                             <dt class="shrink-0 text-sm text-slate-500 dark:text-slate-400">Session ID</dt>

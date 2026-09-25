@@ -203,7 +203,7 @@
                             @if ($followUp)
                                 <span
                                     class="{{ $followUpChip[$followUp][1] }} inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium whitespace-nowrap ring-1 ring-inset"
-                                    title="Follow up on {{ $enquiry->follow_up_at->format('d M Y') }}"
+                                    title="Follow up on {{ local_day($enquiry->follow_up_at) }}"
                                 >
                                     <x-admin.icon name="calendar" class="h-3 w-3" />
                                     {{ $followUpChip[$followUp][0] ?? $enquiry->follow_up_at->format('d M') }}
@@ -228,8 +228,8 @@
                     </td>
 
                     <td class="whitespace-nowrap">
-                        <time datetime="{{ $enquiry->created_at->toIso8601String() }}" title="{{ $enquiry->created_at->format('d M Y, H:i') }}">
-                            <span class="block text-slate-700 dark:text-slate-200">{{ $enquiry->created_at->format('d M Y') }}</span>
+                        <time datetime="{{ $enquiry->created_at->toIso8601String() }}" title="{{ local_datetime($enquiry->created_at) }}">
+                            <span class="block text-slate-700 dark:text-slate-200">{{ local_date($enquiry->created_at) }}</span>
                             <span class="text-xs text-slate-400">{{ $enquiry->created_at->diffForHumans() }}</span>
                         </time>
                     </td>

@@ -132,7 +132,7 @@
                 </td>
 
                 <td class="whitespace-nowrap">
-                    <span class="block text-slate-700 dark:text-slate-200">{{ $notification->created_at->format('d M Y') }}</span>
+                    <span class="block text-slate-700 dark:text-slate-200">{{ local_date($notification->created_at) }}</span>
                     <span class="text-xs text-slate-400">{{ $notification->created_at->diffForHumans() }}</span>
                 </td>
 

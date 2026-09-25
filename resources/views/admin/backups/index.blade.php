@@ -124,7 +124,9 @@
                         <p class="text-xs text-slate-500 dark:text-slate-400">
                             @if ($nextRun)
                                 Next automatic backup:
-                                <strong class="font-semibold text-slate-700 dark:text-slate-200">{{ $nextRun->format('D d M Y, H:i') }}</strong>
+                                <strong class="font-semibold text-slate-700 dark:text-slate-200">
+                                    {{ \App\Support\LocalTime::toLocal($nextRun)->format('D') . ' ' . local_datetime($nextRun) }}
+                                </strong>
                                 ({{ $nextRun->diffForHumans() }})
                             @else
                                 Automatic backups are off.
@@ -319,7 +321,7 @@
         @foreach ($backups as $backup)
             <tr>
                 <td>
-                    <span class="block font-medium text-slate-900 dark:text-white">{{ $backup->created_at->format('d M Y, H:i') }}</span>
+                    <span class="block font-medium text-slate-900 dark:text-white">{{ local_datetime($backup->created_at) }}</span>
                     <span class="mt-0.5 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
                         <span
                             @class([

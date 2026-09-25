@@ -9,7 +9,7 @@
     $start = (string) request($startName, '');
     $end = (string) request($endName, '');
     $isSet = $start !== '' || $end !== '';
-    $fmt = fn ($d) => rescue(fn () => \Illuminate\Support\Carbon::parse($d)->format('j M Y'), $d, false);
+    $fmt = fn ($d) => rescue(fn () => \App\Support\LocalTime::day($d), $d, false);
     $display = $isSet ? ($start ? $fmt($start) : '…') . ' – ' . ($end ? $fmt($end) : '…') : '';
     $id = 'filter-' . \App\Support\FormField::id($startName);
 @endphp

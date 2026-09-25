@@ -116,6 +116,7 @@
             </div>
 
             @include('layouts.partials.admin.command-palette')
+            @include('layouts.partials.admin.idle-warning')
 
             <div id="admin-portal" class="relative z-120"></div>
         </div>

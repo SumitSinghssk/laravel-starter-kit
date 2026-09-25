@@ -121,7 +121,7 @@
                                 <p class="mt-0.5 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
                                     @if ($gallery->event_date)
                                         <x-admin.icon name="calendar" class="h-3 w-3" />
-                                        {{ $gallery->event_date->format('d M Y') }}
+                                        {{ local_day($gallery->event_date) }}
                                         <span aria-hidden="true">·</span>
                                     @endif
 

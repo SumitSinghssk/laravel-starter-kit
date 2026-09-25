@@ -43,6 +43,10 @@ class RolePermissionSeeder extends Seeder
             'admin.settings.maintenance.update',
             'admin.settings.email.view',
             'admin.settings.email.update',
+            'admin.settings.date-time.view',
+            'admin.settings.date-time.update',
+            'admin.settings.security.view',
+            'admin.settings.security.update',
 
             'admin.activity-logs.view',
             'admin.activity-logs.clear',
@@ -63,6 +67,7 @@ class RolePermissionSeeder extends Seeder
             'admin.users.toogle-status',
             'admin.users.sessions',
             'admin.users.two-factor',
+            'admin.users.unlock',
 
             'admin.notifications.view',
             'admin.notifications.mark-all-as-read',

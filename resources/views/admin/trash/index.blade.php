@@ -203,10 +203,7 @@
                                         </span>
                                     </td>
                                     <td class="whitespace-nowrap">
-                                        <span
-                                            class="block text-slate-700 dark:text-slate-200"
-                                            title="{{ $item['deleted_at']->format('d M Y, H:i') }}"
-                                        >
+                                        <span class="block text-slate-700 dark:text-slate-200" title="{{ local_datetime($item['deleted_at']) }}">
                                             {{ $item['deleted_at']->diffForHumans() }}
                                         </span>
                                         @if ($item['purge_at'])
